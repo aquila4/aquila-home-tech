@@ -1,0 +1,92 @@
+<nav class="navbar navbar-expand-lg navbar-dark aq-navbar sticky-top">
+  <div class="container">
+
+    <!-- Brand -->
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('main.index') }}">
+      <img src="{{ url_for('static', filename='images/logo/aquila_logo_icon.png') }}"
+           alt="Aquila Home Tech" style="width:44px; height:44px; object-fit:contain;" />
+      <div>
+        <span class="brand-name">Aquila Home Tech</span>
+        <small class="d-block brand-tagline">Quality You Can Trust</small>
+      </div>
+    </a>
+
+    <!-- Toggler -->
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+            data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false"
+            aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Links -->
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}"
+             href="{{ url_for('main.index') }}">Home</a>
+        </li>
+
+        <!-- Categories Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle {% if 'products' in (request.endpoint or '') %}active{% endif %}"
+             href="#" id="categoriesDropdown" role="button"
+             data-bs-toggle="dropdown" aria-expanded="false">
+            Products
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark aq-dropdown">
+            <li>
+              <a class="dropdown-item" href="{{ url_for('products.catalogue') }}">
+                <i class="bi bi-grid-3x3-gap me-2"></i>All Products
+              </a>
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            {% for cat in categories %}
+            <li>
+              <a class="dropdown-item" href="{{ url_for('products.catalogue', category=cat.slug) }}">
+                {{ cat.icon }} {{ cat.name }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'main.about' %}active{% endif %}"
+             href="{{ url_for('main.about') }}">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.endpoint == 'main.contact' %}active{% endif %}"
+             href="{{ url_for('main.contact') }}">Contact</a>
+        </li>
+
+        <!-- Admin link -->
+        <li class="nav-item">
+          <a class="nav-link admin-nav-link {% if 'admin' in (request.endpoint or '') %}active{% endif %}"
+             href="{{ url_for('admin.login') }}" title="Admin Panel">
+            <i class="bi bi-shield-lock-fill me-1"></i>
+            <span class="admin-nav-text">Admin</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Search form -->
+      <form class="d-flex me-3" action="{{ url_for('products.catalogue') }}" method="GET">
+        <div class="input-group aq-search">
+          <input class="form-control" type="search" name="q"
+                 placeholder="Search products..." aria-label="Search"
+                 value="{{ request.args.get('q', '') }}" />
+          <button class="btn btn-accent" type="submit">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+      </form>
+
+      <!-- WhatsApp CTA -->
+      <a href="https://wa.me/{{ whatsapp_number }}" target="_blank" rel="noopener"
+         class="btn btn-whatsapp d-flex align-items-center gap-2">
+        <i class="bi bi-whatsapp fs-5"></i>
+        <span class="d-none d-xl-inline">Order Now</span>
+      </a>
+    </div>
+  </div>
+</nav>

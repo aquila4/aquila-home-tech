@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Home</a></li>
+        <li class="breadcrumb-item active">About Us</li>
+      </ol>
+    </nav>
+    <h1 class="page-header__title">About Aquila Home Tech</h1>
+  </div>
+</div>
+
+<!-- Company Story -->
+<section class="section-gap">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6" data-aos="fade-right">
+        <div class="about-img-block">
+          <div class="about-img-decoration"></div>
+          <div class="about-img-placeholder d-flex align-items-center justify-content-center rounded-3">
+            <span style="font-size:6rem;">🏬</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6" data-aos="fade-left">
+        <span class="section-label">Our Story</span>
+        <h2 class="section-title">Powering Homes in Ilorin Since Day One</h2>
+        <p>
+          Aquila Home Tech was founded with a simple but powerful mission: to make quality electronics
+          and home appliances accessible and affordable for every household in Ilorin, Kwara State,
+          and beyond.
+        </p>
+        <p>
+          We started as a small electrical accessories shop and have grown into a trusted one-stop
+          destination for smart TVs, home theaters, refrigerators, fans, stabilizers and much more.
+          Every product on our shelves is carefully selected for quality, durability, and value.
+        </p>
+        <p>
+          Our team of experts is passionate about technology and dedicated to helping every customer
+          find the perfect solution for their home. We pride ourselves on honest advice, fair pricing,
+          and exceptional after-sales support.
+        </p>
+        <div class="row g-3 mt-3">
+          <div class="col-6">
+            <div class="about-stat">
+              <h3 class="text-gradient">500+</h3>
+              <p>Products in Store</p>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="about-stat">
+              <h3 class="text-gradient">2,000+</h3>
+              <p>Happy Customers</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Mission & Vision -->
+<section class="section-gap bg-light-custom">
+  <div class="container">
+    <div class="section-header" data-aos="fade-up">
+      <span class="section-label">Our Purpose</span>
+      <h2 class="section-title">Mission & Vision</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6" data-aos="fade-right">
+        <div class="mission-card h-100">
+          <div class="mission-card__icon">🎯</div>
+          <h4 class="mission-card__title">Our Mission</h4>
+          <p>
+            To provide high-quality, genuine electronics and home appliances at competitive prices,
+            backed by reliable after-sales service — ensuring every customer enjoys value and peace
+            of mind with every purchase.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-6" data-aos="fade-left">
+        <div class="mission-card h-100">
+          <div class="mission-card__icon">🌟</div>
+          <h4 class="mission-card__title">Our Vision</h4>
+          <p>
+            To become the most trusted and preferred electronics and home appliances retailer in
+            Kwara State, known for exceptional product quality, outstanding customer service,
+            and a positive impact on the community we serve.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="section-gap">
+  <div class="container">
+    <div class="section-header" data-aos="fade-up">
+      <span class="section-label">Our Promise</span>
+      <h2 class="section-title">Why Choose Aquila Home Tech?</h2>
+    </div>
+    <div class="row g-4">
+      {% set reasons = [
+        ("bi-award-fill", "Top Quality Brands", "We stock only genuine products from the world's most trusted electronics brands."),
+        ("bi-wallet2", "Affordable Prices", "We keep our prices fair and competitive because we believe everyone deserves quality."),
+        ("bi-tools", "Expert Team", "Our staff are trained and knowledgeable about every product we sell."),
+        ("bi-shop", "Walk-in Store", "Visit our Ilorin showroom anytime to see, touch and experience products before buying."),
+        ("bi-shield-lock-fill", "Warranty & Support", "All products come with manufacturer warranty and we provide full after-sales support."),
+        ("bi-whatsapp", "WhatsApp Ordering", "Simply chat with us on WhatsApp to order any product — fast, easy, and convenient."),
+      ] %}
+      {% for icon, title, desc in reasons %}
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 80 }}">
+        <div class="why-card">
+          <div class="why-card__icon">
+            <i class="bi {{ icon }}"></i>
+          </div>
+          <h5 class="why-card__title">{{ title }}</h5>
+          <p class="why-card__text">{{ desc }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section section-gap">
+  <div class="container text-center">
+    <div data-aos="zoom-in">
+      <h2 class="cta-title">Ready to Shop with Us?</h2>
+      <p class="cta-subtitle">Browse our wide range of products or contact us today!</p>
+      <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+        <a href="{{ url_for('products.catalogue') }}" class="btn btn-accent btn-lg px-5">
+          Shop Now <i class="bi bi-arrow-right ms-2"></i>
+        </a>
+        <a href="{{ url_for('main.contact') }}" class="btn btn-outline-light btn-lg px-5">
+          Contact Us
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

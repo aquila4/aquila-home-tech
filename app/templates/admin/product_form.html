@@ -1,0 +1,113 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ action }} Product{% endblock %}
+{% block page_heading %}{{ action }} Product{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+
+    <div class="admin-card">
+      <div class="admin-card__header">
+        <h6 class="mb-0">
+          <i class="bi bi-box-seam me-2"></i>{{ action }} Product
+        </h6>
+      </div>
+
+      <form method="POST" enctype="multipart/form-data" novalidate class="p-4">
+        {{ form.hidden_tag() }}
+
+        <div class="row g-3">
+
+          <!-- Name -->
+          <div class="col-12">
+            <label class="form-label fw-semibold" for="name">Product Name *</label>
+            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), id="name") }}
+            {% for e in form.name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+
+          <!-- Category -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="category_id">Category *</label>
+            {{ form.category_id(class="form-select" + (" is-invalid" if form.category_id.errors else ""), id="category_id") }}
+            {% for e in form.category_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+
+          <!-- Price -->
+          <div class="col-md-3">
+            <label class="form-label fw-semibold" for="price">Price (₦) *</label>
+            {{ form.price(class="form-control" + (" is-invalid" if form.price.errors else ""), id="price") }}
+            {% for e in form.price.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+
+          <!-- Old price -->
+          <div class="col-md-3">
+            <label class="form-label fw-semibold" for="old_price">Old Price (₦)</label>
+            {{ form.old_price(class="form-control" + (" is-invalid" if form.old_price.errors else ""), id="old_price") }}
+            <small class="text-muted">For discount display</small>
+          </div>
+
+          <!-- Stock -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold" for="stock_quantity">Stock Quantity *</label>
+            {{ form.stock_quantity(class="form-control" + (" is-invalid" if form.stock_quantity.errors else ""), id="stock_quantity") }}
+          </div>
+
+          <!-- Checkboxes -->
+          <div class="col-md-4 d-flex align-items-end gap-4">
+            <div class="form-check">
+              {{ form.featured(class="form-check-input", id="featured") }}
+              <label class="form-check-label" for="featured">⭐ Featured</label>
+            </div>
+            <div class="form-check">
+              {{ form.is_active(class="form-check-input", id="is_active") }}
+              <label class="form-check-label" for="is_active">✅ Active</label>
+            </div>
+          </div>
+
+          <!-- Image upload -->
+          <div class="col-md-4">
+            <label class="form-label fw-semibold" for="image">Product Image</label>
+            {{ form.image(class="form-control" + (" is-invalid" if form.image.errors else ""), id="image", accept="image/*") }}
+            {% for e in form.image.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+            {% if product and product.image and product.image != 'default_product.jpg' %}
+              <div class="mt-2">
+                <img src="{{ url_for('static', filename='images/uploads/' + product.image) }}"
+                     alt="Current image" class="admin-product-thumb-lg" />
+                <small class="text-muted d-block">Current image</small>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Description -->
+          <div class="col-12">
+            <label class="form-label fw-semibold" for="description">Description</label>
+            {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""),
+               id="description", rows="4", placeholder="Detailed product description...") }}
+          </div>
+
+          <!-- Specifications -->
+          <div class="col-12">
+            <label class="form-label fw-semibold" for="specifications">Specifications</label>
+            {{ form.specifications(class="form-control font-monospace" + (" is-invalid" if form.specifications.errors else ""),
+               id="specifications", rows="6",
+               placeholder="Brand: Samsung&#10;Screen Size: 55 inches&#10;Resolution: 4K UHD&#10;Smart TV: Yes&#10;Warranty: 1 Year") }}
+            <small class="text-muted">One spec per line in "Key: Value" format</small>
+          </div>
+
+          <!-- Submit -->
+          <div class="col-12 d-flex gap-2 mt-2">
+            <button type="submit" class="btn btn-accent px-5">
+              <i class="bi bi-check2 me-2"></i>{{ action }} Product
+            </button>
+            <a href="{{ url_for('admin.products') }}" class="btn btn-outline-secondary px-4">
+              Cancel
+            </a>
+          </div>
+
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

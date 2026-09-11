@@ -1,0 +1,45 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ action }} Testimonial{% endblock %}
+{% block page_heading %}{{ action }} Testimonial{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="admin-card">
+      <form method="POST" novalidate class="p-4">
+        {{ form.hidden_tag() }}
+        <div class="row g-3">
+          <div class="col-md-7">
+            <label class="form-label fw-semibold">Customer Name *</label>
+            {{ form.customer_name(class="form-control" + (" is-invalid" if form.customer_name.errors else "")) }}
+            {% for e in form.customer_name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="col-md-5">
+            <label class="form-label fw-semibold">Location</label>
+            {{ form.location(class="form-control") }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Rating</label>
+            {{ form.rating(class="form-select") }}
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Testimonial *</label>
+            {{ form.message(class="form-control" + (" is-invalid" if form.message.errors else ""), rows="4") }}
+            {% for e in form.message.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="col-12">
+            <div class="form-check">
+              {{ form.is_approved(class="form-check-input") }}
+              <label class="form-check-label">Approved (show on site)</label>
+            </div>
+          </div>
+          <div class="col-12 d-flex gap-2">
+            <button type="submit" class="btn btn-accent px-4">{{ action }}</button>
+            <a href="{{ url_for('admin.testimonials') }}" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

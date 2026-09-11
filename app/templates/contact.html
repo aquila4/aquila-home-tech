@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}Contact Us{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Home</a></li>
+        <li class="breadcrumb-item active">Contact</li>
+      </ol>
+    </nav>
+    <h1 class="page-header__title">Contact Us</h1>
+  </div>
+</div>
+
+<section class="section-gap">
+  <div class="container">
+    <div class="row g-5">
+
+      <!-- Contact info -->
+      <div class="col-lg-5" data-aos="fade-right">
+        <span class="section-label">Reach Out</span>
+        <h2 class="section-title">Get In Touch With Us</h2>
+        <p class="text-muted mb-4">
+          Have a question, need product advice, or want to place an order?
+          We're here to help. Reach us via any of the channels below.
+        </p>
+
+        <div class="contact-info-list">
+          <div class="contact-info-item">
+            <div class="contact-info-item__icon">
+              <i class="bi bi-geo-alt-fill"></i>
+            </div>
+            <div>
+              <strong>Store Address</strong>
+              <p class="text-muted mb-0">{{ business_address }}</p>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-item__icon">
+              <i class="bi bi-telephone-fill"></i>
+            </div>
+            <div>
+              <strong>Phone Number</strong>
+              <p class="mb-0"><a href="tel:{{ business_phone }}" class="text-decoration-none">{{ business_phone }}</a></p>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-item__icon">
+              <i class="bi bi-envelope-fill"></i>
+            </div>
+            <div>
+              <strong>Email Address</strong>
+              <p class="mb-0"><a href="mailto:{{ business_email }}" class="text-decoration-none">{{ business_email }}</a></p>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-item__icon">
+              <i class="bi bi-clock-fill"></i>
+            </div>
+            <div>
+              <strong>Business Hours</strong>
+              <p class="mb-0 text-muted">Monday – Saturday: 8:00 AM – 7:00 PM</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- WhatsApp Button -->
+        <a href="https://wa.me/{{ whatsapp_number }}" target="_blank" rel="noopener"
+           class="btn btn-whatsapp btn-lg w-100 mt-4">
+          <i class="bi bi-whatsapp me-2 fs-5"></i> Chat on WhatsApp
+        </a>
+
+        <!-- Google Maps Embed -->
+        <div class="mt-4 rounded-3 overflow-hidden shadow-sm">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126090.73044783097!2d4.4959!3d8.4966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x10364d4a372e7d01%3A0x9651e4a93a1b1c48!2sIlorin%2C%20Kwara%20State%2C%20Nigeria!5e0!3m2!1sen!2sng!4v1700000000000"
+            width="100%" height="220" style="border:0;" allowfullscreen=""
+            loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            title="Aquila Home Tech location map">
+          </iframe>
+        </div>
+      </div>
+
+      <!-- Contact form -->
+      <div class="col-lg-7" data-aos="fade-left">
+        <div class="contact-form-card">
+          <h4 class="mb-4">Send Us a Message</h4>
+          <form method="POST" action="{{ url_for('main.contact') }}" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label" for="name">Full Name <span class="text-danger">*</span></label>
+                {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), id="name", placeholder="e.g. Aminu Babatunde") }}
+                {% for e in form.name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="email">Email Address <span class="text-danger">*</span></label>
+                {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), id="email", placeholder="you@example.com") }}
+                {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="phone">Phone Number</label>
+                {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else ""), id="phone", placeholder="+234 800 000 0000") }}
+                {% for e in form.phone.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="subject">Subject</label>
+                {{ form.subject(class="form-control" + (" is-invalid" if form.subject.errors else ""), id="subject", placeholder="Product inquiry...") }}
+                {% for e in form.subject.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="message">Message <span class="text-danger">*</span></label>
+                {{ form.message(class="form-control" + (" is-invalid" if form.message.errors else ""), id="message", rows="5", placeholder="Tell us how we can help...") }}
+                {% for e in form.message.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-accent btn-lg px-5 w-100">
+                  <i class="bi bi-send me-2"></i> Send Message
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}

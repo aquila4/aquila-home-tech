@@ -1,0 +1,500 @@
+{% extends "base.html" %}
+
+{% block title %}Aquila Home Tech – Electronics & Home Appliances{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════════════════════════
+     HERO SECTION – Full screen cinematic
+════════════════════════════════════════════════════════════════ -->
+<section class="hero-section hero-section--new">
+  <div class="hero-bg-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container hero-content">
+    <div class="row align-items-center g-5 min-vh-80">
+
+      <!-- Left: Text -->
+      <div class="col-lg-6">
+        <div data-aos="fade-right" data-aos-duration="900">
+          <div class="hero-badge-wrap">
+            <span class="hero-badge">🏆 Ilorin's #1 Electronics Store</span>
+          </div>
+          <h1 class="hero-title mt-3">
+            Shop Smart.<br/>
+            Live <span class="text-gradient">Better.</span>
+          </h1>
+          <p class="hero-subtitle mt-3">
+            Premium TVs, fridges, fans, speakers & more — delivered to your
+            door at the best prices in Kwara State.
+          </p>
+
+          <!-- Trust pills -->
+          <div class="d-flex flex-wrap gap-2 mt-4 mb-4">
+            <span class="trust-pill"><i class="bi bi-patch-check-fill"></i> 100% Genuine</span>
+            <span class="trust-pill"><i class="bi bi-truck"></i> Fast Delivery</span>
+            <span class="trust-pill"><i class="bi bi-shield-check"></i> Warranty</span>
+            <span class="trust-pill"><i class="bi bi-headset"></i> 24/7 Support</span>
+          </div>
+
+          <div class="d-flex flex-wrap gap-3">
+            <a href="{{ url_for('products.catalogue') }}" class="btn btn-accent btn-lg px-5">
+              Shop Now <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+            <a href="https://wa.me/{{ whatsapp_number }}" target="_blank" rel="noopener"
+               class="btn btn-whatsapp btn-lg px-4">
+              <i class="bi bi-whatsapp me-2"></i> Order on WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Hero image with floating cards -->
+      <!-- Right: Hero visual showcase -->
+      <div class="col-lg-6 col-12" data-aos="fade-left" data-aos-duration="900">
+        <div class="hero-showcase">
+
+          <!-- Graphic design block (no image needed) -->
+          <div class="hero-graphic">
+
+            <!-- Top row: 2 product cards -->
+            <div class="hero-graphic__row">
+              <div class="hero-graphic__card hero-graphic__card--tv">
+                <div class="hero-graphic__card-icon">📺</div>
+                <div class="hero-graphic__card-info">
+                  <span class="hero-graphic__card-name">Smart TVs</span>
+                  <span class="hero-graphic__card-price">From ₦150,000</span>
+                </div>
+                <span class="hero-graphic__card-badge">NEW</span>
+              </div>
+              <div class="hero-graphic__card hero-graphic__card--fridge">
+                <div class="hero-graphic__card-icon">🧊</div>
+                <div class="hero-graphic__card-info">
+                  <span class="hero-graphic__card-name">Fridges</span>
+                  <span class="hero-graphic__card-price">From ₦180,000</span>
+                </div>
+                <span class="hero-graphic__card-badge hero-graphic__card-badge--gold">HOT</span>
+              </div>
+            </div>
+
+            <!-- Middle: Big feature card -->
+            <div class="hero-graphic__feature">
+              <div class="hero-graphic__feature-left">
+                <span class="hero-graphic__feature-emoji">🔊</span>
+                <div>
+                  <strong>Home Theaters</strong>
+                  <small>Surround Sound Experience</small>
+                  <span class="hero-graphic__feature-price">From ₦85,000</span>
+                </div>
+              </div>
+              <div class="hero-graphic__feature-right">
+                <div class="hero-graphic__pulse">
+                  <span>🎬</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom row: 3 mini cards -->
+            <div class="hero-graphic__row hero-graphic__row--3">
+              <div class="hero-graphic__mini">
+                <span>💨</span>
+                <strong>Fans</strong>
+                <small>From ₦15k</small>
+              </div>
+              <div class="hero-graphic__mini hero-graphic__mini--active">
+                <span>⚡</span>
+                <strong>Stabilizers</strong>
+                <small>From ₦25k</small>
+              </div>
+              <div class="hero-graphic__mini">
+                <span>💡</span>
+                <strong>LED Bulbs</strong>
+                <small>From ₦2k</small>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Stats row -->
+          <div class="hero-showcase__stats mt-3">
+            <div class="hero-showcase__stat">
+              <div class="hero-showcase__stat-icon" style="background:rgba(0,201,167,.15);color:#00C9A7;">
+                <i class="bi bi-box-seam-fill"></i>
+              </div>
+              <div>
+                <strong>500+</strong>
+                <span>Products</span>
+              </div>
+            </div>
+            <div class="hero-showcase__stat hero-showcase__stat--mid">
+              <div class="hero-showcase__stat-icon" style="background:rgba(245,166,35,.15);color:#F5A623;">
+                <i class="bi bi-people-fill"></i>
+              </div>
+              <div>
+                <strong>2,000+</strong>
+                <span>Customers</span>
+              </div>
+            </div>
+            <div class="hero-showcase__stat">
+              <div class="hero-showcase__stat-icon" style="background:rgba(59,130,246,.15);color:#3B82F6;">
+                <i class="bi bi-star-fill"></i>
+              </div>
+              <div>
+                <strong>5★</strong>
+                <span>Top Rated</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- WhatsApp pill -->
+          <a href="https://wa.me/{{ whatsapp_number }}"
+             target="_blank" rel="noopener"
+             class="hero-showcase__wa-pill mt-3">
+            <i class="bi bi-whatsapp"></i>
+            <span>Order in 60 seconds on WhatsApp!</span>
+            <i class="bi bi-arrow-right"></i>
+          </a>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <a href="#categories" class="hero-scroll-hint">
+    <i class="bi bi-chevron-double-down"></i>
+  </a>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     MARQUEE TRUST BAR
+════════════════════════════════════════════════════════════════ -->
+<div class="marquee-bar">
+  <div class="marquee-track">
+    {% for item in [
+      ("bi-tv-fill", "Smart TVs"),
+      ("bi-snow2", "Fridges & Freezers"),
+      ("bi-speaker-fill", "Speakers & Home Theater"),
+      ("bi-wind", "Fans & Cooling"),
+      ("bi-lightning-charge-fill", "Stabilizers"),
+      ("bi-lightbulb-fill", "LED Bulbs"),
+      ("bi-plug-fill", "Electrical Accessories"),
+      ("bi-patch-check-fill", "100% Genuine"),
+      ("bi-truck", "Fast Delivery"),
+      ("bi-shield-check", "Warranty Included"),
+      ("bi-tv-fill", "Smart TVs"),
+      ("bi-snow2", "Fridges & Freezers"),
+      ("bi-speaker-fill", "Speakers & Home Theater"),
+      ("bi-wind", "Fans & Cooling"),
+    ] %}
+    <span class="marquee-item">
+      <i class="bi {{ item[0] }}"></i> {{ item[1] }}
+    </span>
+    <span class="marquee-dot">•</span>
+    {% endfor %}
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     CATEGORIES — Icon grid
+════════════════════════════════════════════════════════════════ -->
+<section id="categories" class="section-gap">
+  <div class="container">
+    <div class="section-header" data-aos="fade-up">
+      <span class="section-label">Browse By Category</span>
+      <h2 class="section-title">What Are You Looking For?</h2>
+    </div>
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+      {% for cat in categories %}
+      <div class="col" data-aos="zoom-in" data-aos-delay="{{ loop.index0 * 40 }}">
+        <a href="{{ url_for('products.catalogue', category=cat.slug) }}"
+           class="cat-card text-decoration-none">
+          <div class="cat-card__icon">{{ cat.icon }}</div>
+          <span class="cat-card__name">{{ cat.name }}</span>
+          <span class="cat-card__count">{{ cat.product_count }} items</span>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     FEATURED PRODUCTS — Big showcase
+════════════════════════════════════════════════════════════════ -->
+{% if featured_products %}
+<section class="section-gap featured-section">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-5" data-aos="fade-up">
+      <div>
+        <span class="section-label">🔥 Hand-picked for You</span>
+        <h2 class="section-title mb-0">Featured Products</h2>
+      </div>
+      <a href="{{ url_for('products.catalogue') }}" class="btn btn-outline-primary btn-sm px-4">
+        View All <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+
+    <div class="row g-4">
+      {% for product in featured_products %}
+      <div class="col-6 col-md-4 col-lg-3" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 60 }}">
+        <div class="pcard">
+          <a href="{{ url_for('products.detail', slug=product.slug) }}" class="pcard__img-link">
+            {% if product.discount_percent > 0 %}
+              <span class="pcard__badge pcard__badge--sale">-{{ product.discount_percent }}%</span>
+            {% endif %}
+            {% if product.featured %}
+              <span class="pcard__badge pcard__badge--hot" style="top:10px;right:10px;left:auto;">🔥</span>
+            {% endif %}
+            <img src="{{ url_for('static', filename='images/uploads/' + product.image) }}"
+                 alt="{{ product.name }}" class="pcard__img"
+                 onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
+            <div class="pcard__overlay">
+              <span class="pcard__overlay-btn">Quick View</span>
+            </div>
+          </a>
+          <div class="pcard__body">
+            <span class="pcard__cat">{{ product.category.name }}</span>
+            <h6 class="pcard__name">
+              <a href="{{ url_for('products.detail', slug=product.slug) }}">{{ product.name }}</a>
+            </h6>
+            <div class="pcard__price-row">
+              <span class="pcard__price">{{ product.formatted_price }}</span>
+              {% if product.old_price and product.old_price > product.price %}
+                <span class="pcard__old">₦{{ "{:,.0f}".format(product.old_price) }}</span>
+              {% endif %}
+            </div>
+            <a href="https://wa.me/{{ whatsapp_number }}?text=I want to order: {{ product.name }}"
+               target="_blank" class="pcard__btn">
+              <i class="bi bi-whatsapp me-1"></i> Order Now
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     PROMO SPLIT BANNER
+════════════════════════════════════════════════════════════════ -->
+<section class="section-gap">
+  <div class="container">
+    <div class="row g-4">
+
+      <!-- Big promo left -->
+      <div class="col-lg-8" data-aos="fade-right">
+        <div class="promo-card promo-card--main">
+          <div class="promo-card__content">
+            <span class="promo-card__tag">🎯 Custom Orders</span>
+            <h3 class="promo-card__title">Can't Find What You Need?</h3>
+            <p class="promo-card__text">
+              Tell us what you want and we'll source it at the best price — fast!
+            </p>
+            <a href="https://wa.me/{{ whatsapp_number }}?text=Hello!%20I%20need%20a%20custom%20order..."
+               target="_blank" class="btn btn-whatsapp px-4">
+              <i class="bi bi-whatsapp me-2"></i> Chat With Us
+            </a>
+          </div>
+          <div class="promo-card__deco">⚡</div>
+        </div>
+      </div>
+
+      <!-- Small promo right -->
+      <div class="col-lg-4" data-aos="fade-left">
+        <div class="promo-card promo-card--secondary h-100">
+          <div class="promo-card__content">
+            <span class="promo-card__tag">📍 Visit Us</span>
+            <h3 class="promo-card__title" style="font-size:1.3rem;">Walk Into Our Store</h3>
+            <p class="promo-card__text" style="font-size:.85rem;">
+              Ilorin, Kwara State. See & feel products before buying.
+            </p>
+            <a href="{{ url_for('main.contact') }}" class="btn btn-outline-light btn-sm px-4">
+              Get Directions <i class="bi bi-map ms-1"></i>
+            </a>
+          </div>
+          <div class="promo-card__deco" style="font-size:3rem;">🏬</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     NEW ARRIVALS
+════════════════════════════════════════════════════════════════ -->
+{% if latest_products %}
+<section class="section-gap bg-light-custom">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-5" data-aos="fade-up">
+      <div>
+        <span class="section-label">✨ Just Arrived</span>
+        <h2 class="section-title mb-0">New Arrivals</h2>
+      </div>
+      <a href="{{ url_for('products.catalogue') }}" class="btn btn-outline-primary btn-sm px-4">
+        See All <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+    <div class="row g-4">
+      {% for product in latest_products %}
+      <div class="col-6 col-md-4 col-lg-3" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 60 }}">
+        <div class="pcard">
+          <a href="{{ url_for('products.detail', slug=product.slug) }}" class="pcard__img-link">
+            {% if not product.in_stock %}
+              <span class="pcard__badge pcard__badge--oos">Out of Stock</span>
+            {% endif %}
+            <img src="{{ url_for('static', filename='images/uploads/' + product.image) }}"
+                 alt="{{ product.name }}" class="pcard__img"
+                 onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
+            <div class="pcard__overlay">
+              <span class="pcard__overlay-btn">Quick View</span>
+            </div>
+          </a>
+          <div class="pcard__body">
+            <span class="pcard__cat">{{ product.category.name }}</span>
+            <h6 class="pcard__name">
+              <a href="{{ url_for('products.detail', slug=product.slug) }}">{{ product.name }}</a>
+            </h6>
+            <div class="pcard__price-row">
+              <span class="pcard__price">{{ product.formatted_price }}</span>
+              {% if product.old_price and product.old_price > product.price %}
+                <span class="pcard__old">₦{{ "{:,.0f}".format(product.old_price) }}</span>
+              {% endif %}
+            </div>
+            <a href="{{ url_for('products.detail', slug=product.slug) }}" class="pcard__btn pcard__btn--outline">
+              View Details <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     WHY CHOOSE US — Icon cards
+════════════════════════════════════════════════════════════════ -->
+<section class="section-gap">
+  <div class="container">
+    <div class="section-header" data-aos="fade-up">
+      <span class="section-label">Our Promise</span>
+      <h2 class="section-title">Why Thousands Choose Us</h2>
+    </div>
+    <div class="row g-4">
+      {% set reasons = [
+        ("bi-award-fill", "#00C9A7", "Top Brands Only", "We stock only genuine products from the world's most trusted electronics brands."),
+        ("bi-wallet2", "#F5A623", "Best Prices", "Our prices are always competitive — we match or beat any local price."),
+        ("bi-tools", "#3B82F6", "Expert Advice", "Our trained team helps you pick the right product every time."),
+        ("bi-shop", "#10B981", "Physical Showroom", "Come see and touch products at our Ilorin store before buying."),
+        ("bi-shield-lock-fill", "#8B5CF6", "Warranty on All Items", "Every product comes with full manufacturer warranty and our support."),
+        ("bi-lightning-charge-fill", "#EF4444", "Same-Day Delivery", "We deliver fast within Ilorin — often same day you order."),
+      ] %}
+      {% for icon, color, title, desc in reasons %}
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 70 }}">
+        <div class="feature-card">
+          <div class="feature-card__icon" style="background: {{ color }}20; color: {{ color }}">
+            <i class="bi {{ icon }}"></i>
+          </div>
+          <div>
+            <h6 class="feature-card__title">{{ title }}</h6>
+            <p class="feature-card__text">{{ desc }}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     TESTIMONIALS
+════════════════════════════════════════════════════════════════ -->
+{% if testimonials %}
+<section class="section-gap bg-light-custom">
+  <div class="container">
+    <div class="section-header" data-aos="fade-up">
+      <span class="section-label">⭐ Real Reviews</span>
+      <h2 class="section-title">What Our Customers Say</h2>
+    </div>
+    <div class="row g-4">
+      {% for t in testimonials %}
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 80 }}">
+        <div class="tcard h-100">
+          <div class="tcard__stars mb-3">
+            {% for i in range(t.rating) %}<i class="bi bi-star-fill text-warning"></i>{% endfor %}
+            {% for i in range(5 - t.rating) %}<i class="bi bi-star text-secondary"></i>{% endfor %}
+          </div>
+          <p class="tcard__msg">"{{ t.message }}"</p>
+          <div class="tcard__author">
+            <div class="tcard__avatar">{{ t.customer_name[0].upper() }}</div>
+            <div>
+              <strong class="d-block">{{ t.customer_name }}</strong>
+              <small class="text-muted">{{ t.location }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     CTA — Final conversion section
+════════════════════════════════════════════════════════════════ -->
+<section class="cta-section section-gap">
+  <div class="container">
+    <div class="cta-inner" data-aos="zoom-in">
+      <img src="{{ url_for('static', filename='images/logo/aquila_logo_icon.png') }}"
+           alt="Aquila Home Tech" class="cta-logo" />
+      <h2 class="cta-title">Ready to Upgrade Your Home?</h2>
+      <p class="cta-subtitle">
+        Join 2,000+ happy customers in Ilorin. Order in 60 seconds on WhatsApp!
+      </p>
+      <div class="cta-stats">
+        <div class="cta-stat">
+          <strong>500+</strong><span>Products</span>
+        </div>
+        <div class="cta-divider"></div>
+        <div class="cta-stat">
+          <strong>2,000+</strong><span>Customers</span>
+        </div>
+        <div class="cta-divider"></div>
+        <div class="cta-stat">
+          <strong>100%</strong><span>Genuine</span>
+        </div>
+        <div class="cta-divider"></div>
+        <div class="cta-stat">
+          <strong>5★</strong><span>Rated</span>
+        </div>
+      </div>
+      <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+        <a href="https://wa.me/{{ whatsapp_number }}" target="_blank" rel="noopener"
+           class="btn btn-whatsapp btn-lg px-5">
+          <i class="bi bi-whatsapp me-2 fs-5"></i> Order on WhatsApp
+        </a>
+        <a href="{{ url_for('products.catalogue') }}" class="btn btn-outline-light btn-lg px-5">
+          Browse Products
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

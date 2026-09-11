@@ -1,0 +1,61 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Testimonials{% endblock %}
+{% block page_heading %}Manage Testimonials{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end mb-4">
+  <a href="{{ url_for('admin.add_testimonial') }}" class="btn btn-accent">
+    <i class="bi bi-plus-circle me-2"></i>Add Testimonial
+  </a>
+</div>
+
+<div class="admin-card">
+  <div class="table-responsive">
+    <table class="table admin-table mb-0">
+      <thead>
+        <tr><th>Customer</th><th>Rating</th><th>Message</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for t in testimonials %}
+        <tr>
+          <td>
+            <div>{{ t.customer_name }}</div>
+            <small class="text-muted">{{ t.location }}</small>
+          </td>
+          <td>
+            {% for i in range(t.rating) %}<i class="bi bi-star-fill text-warning small"></i>{% endfor %}
+          </td>
+          <td><small>{{ t.message|truncate(80) }}</small></td>
+          <td>
+            {% if t.is_approved %}
+              <span class="badge bg-success">Approved</span>
+            {% else %}
+              <span class="badge bg-warning text-dark">Hidden</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="d-flex gap-1 flex-wrap">
+              <a href="{{ url_for('admin.edit_testimonial', tid=t.id) }}"
+                 class="btn btn-xs btn-outline-primary"><i class="bi bi-pencil"></i></a>
+              <form method="POST" action="{{ url_for('admin.toggle_testimonial', tid=t.id) }}" class="d-inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-xs {% if t.is_approved %}btn-outline-warning{% else %}btn-outline-success{% endif %}">
+                  {% if t.is_approved %}<i class="bi bi-eye-slash"></i>{% else %}<i class="bi bi-eye"></i>{% endif %}
+                </button>
+              </form>
+              <form method="POST" action="{{ url_for('admin.delete_testimonial', tid=t.id) }}"
+                    class="d-inline" onsubmit="return confirm('Delete testimonial?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-xs btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="text-center text-muted py-4">No testimonials yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

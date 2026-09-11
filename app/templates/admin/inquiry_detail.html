@@ -1,0 +1,34 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Inquiry #{{ inquiry.id }}{% endblock %}
+{% block page_heading %}Inquiry Detail{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="admin-card p-4">
+      <div class="d-flex justify-content-between mb-4">
+        <h5 class="mb-0">{{ inquiry.subject or 'No Subject' }}</h5>
+        <small class="text-muted">{{ inquiry.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+      </div>
+      <dl class="row">
+        <dt class="col-sm-3">Name</dt><dd class="col-sm-9">{{ inquiry.name }}</dd>
+        <dt class="col-sm-3">Email</dt><dd class="col-sm-9"><a href="mailto:{{ inquiry.email }}">{{ inquiry.email }}</a></dd>
+        <dt class="col-sm-3">Phone</dt><dd class="col-sm-9">{{ inquiry.phone or '—' }}</dd>
+      </dl>
+      <hr />
+      <p style="white-space:pre-wrap;">{{ inquiry.message }}</p>
+      <hr />
+      <div class="d-flex gap-2">
+        <a href="mailto:{{ inquiry.email }}?subject=Re: {{ inquiry.subject }}"
+           class="btn btn-accent"><i class="bi bi-reply me-2"></i>Reply by Email</a>
+        <a href="{{ url_for('admin.inquiries') }}" class="btn btn-outline-secondary">← Back</a>
+        <form method="POST" action="{{ url_for('admin.delete_inquiry', iid=inquiry.id) }}"
+              class="ms-auto" onsubmit="return confirm('Delete?')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

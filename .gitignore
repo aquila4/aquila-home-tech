@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Environment variables
+.env
+
+# Flask / SQLite
+instance/
+*.db
+*.sqlite3
+
+# Uploads (keep folder, not files)
+app/static/images/uploads/*
+!app/static/images/uploads/.gitkeep
+
+# Migrations (optional – remove if you want to track them)
+# migrations/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

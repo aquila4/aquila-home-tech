@@ -1,0 +1,123 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_heading %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Stats cards -->
+<div class="row g-3 mb-4">
+  {% set stat_cards = [
+    ("bi-box-seam", "Total Products", stats.total_products, "primary", url_for('admin.products')),
+    ("bi-check-circle-fill", "Active Products", stats.active_products, "success", url_for('admin.products')),
+    ("bi-star-fill", "Featured", stats.featured_products, "warning", url_for('admin.products')),
+    ("bi-tags", "Categories", stats.total_categories, "info", url_for('admin.categories')),
+    ("bi-envelope-fill", "Inquiries", stats.total_inquiries, "secondary", url_for('admin.inquiries')),
+    ("bi-envelope-exclamation-fill", "Unread", stats.unread_inquiries, "danger", url_for('admin.inquiries')),
+    ("bi-chat-quote-fill", "Testimonials", stats.total_testimonials, "dark", url_for('admin.testimonials')),
+    ("bi-hand-thumbs-up-fill", "Approved", stats.approved_testimonials, "success", url_for('admin.testimonials')),
+  ] %}
+  {% for icon, label, value, color, link in stat_cards %}
+  <div class="col-6 col-md-3">
+    <a href="{{ link }}" class="text-decoration-none">
+      <div class="admin-stat-card border-{{ color }}">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <p class="admin-stat-card__label">{{ label }}</p>
+            <h3 class="admin-stat-card__value text-{{ color }}">{{ value }}</h3>
+          </div>
+          <i class="bi {{ icon }} fs-3 text-{{ color }} opacity-50"></i>
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="row g-4">
+
+  <!-- Recent products -->
+  <div class="col-lg-7">
+    <div class="admin-card">
+      <div class="admin-card__header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="bi bi-box-seam me-2"></i>Recent Products</h6>
+        <a href="{{ url_for('admin.add_product') }}" class="btn btn-sm btn-accent">
+          <i class="bi bi-plus"></i> Add
+        </a>
+      </div>
+      <div class="table-responsive">
+        <table class="table admin-table mb-0">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in recent_products %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <img src="{{ url_for('static', filename='images/uploads/' + p.image) }}"
+                       alt="{{ p.name }}" class="admin-product-thumb"
+                       onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
+                  <span class="fw-medium">{{ p.name|truncate(30) }}</span>
+                </div>
+              </td>
+              <td><small class="text-muted">{{ p.category.name }}</small></td>
+              <td>{{ p.formatted_price }}</td>
+              <td>
+                {% if p.in_stock %}
+                  <span class="badge bg-success">{{ p.stock_quantity }}</span>
+                {% else %}
+                  <span class="badge bg-danger">0</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{{ url_for('admin.edit_product', pid=p.id) }}"
+                   class="btn btn-xs btn-outline-primary">Edit</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="admin-card__footer">
+        <a href="{{ url_for('admin.products') }}" class="btn btn-sm btn-outline-secondary">
+          View All Products <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent inquiries -->
+  <div class="col-lg-5">
+    <div class="admin-card">
+      <div class="admin-card__header">
+        <h6 class="mb-0"><i class="bi bi-envelope me-2"></i>Recent Inquiries</h6>
+      </div>
+      {% for inq in recent_inquiries %}
+      <div class="inquiry-item {% if not inq.is_read %}inquiry-item--unread{% endif %}">
+        <div class="d-flex justify-content-between align-items-start">
+          <strong class="small">{{ inq.name }}</strong>
+          <small class="text-muted">{{ inq.created_at.strftime('%d %b') }}</small>
+        </div>
+        <p class="small text-muted mb-0 mt-1">{{ inq.subject|truncate(50) }}</p>
+        <a href="{{ url_for('admin.inquiry_detail', iid=inq.id) }}"
+           class="btn btn-xs btn-outline-primary mt-2">Read</a>
+      </div>
+      {% else %}
+        <p class="p-3 text-muted small">No inquiries yet.</p>
+      {% endfor %}
+      <div class="admin-card__footer">
+        <a href="{{ url_for('admin.inquiries') }}" class="btn btn-sm btn-outline-secondary">
+          All Inquiries <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

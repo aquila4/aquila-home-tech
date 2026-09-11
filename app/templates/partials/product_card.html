@@ -1,0 +1,36 @@
+{# partials/product_card.html – reusable product card #}
+<div class="col">
+  <div class="product-card h-100" data-aos="fade-up">
+    <a href="{{ url_for('products.detail', slug=product.slug) }}" class="product-card__img-wrap">
+      {% if product.discount_percent > 0 %}
+        <span class="product-card__badge product-card__badge--discount">-{{ product.discount_percent }}%</span>
+      {% endif %}
+      {% if not product.in_stock %}
+        <span class="product-card__badge product-card__badge--oos">Out of Stock</span>
+      {% endif %}
+      <img src="{{ url_for('static', filename='images/uploads/' + product.image) }}"
+           alt="{{ product.name }}"
+           class="product-card__img"
+           onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
+    </a>
+
+    <div class="product-card__body">
+      <span class="product-card__category">{{ product.category.name }}</span>
+      <h5 class="product-card__title">
+        <a href="{{ url_for('products.detail', slug=product.slug) }}">{{ product.name }}</a>
+      </h5>
+
+      <div class="product-card__price-row">
+        <span class="product-card__price">{{ product.formatted_price }}</span>
+        {% if product.old_price and product.old_price > product.price %}
+          <span class="product-card__old-price">₦{{ "{:,.0f}".format(product.old_price) }}</span>
+        {% endif %}
+      </div>
+
+      <a href="{{ url_for('products.detail', slug=product.slug) }}"
+         class="btn btn-sm btn-outline-primary w-100 mt-auto product-card__btn">
+        View Details <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+  </div>
+</div>
