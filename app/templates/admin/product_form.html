@@ -101,19 +101,15 @@
             <!-- Upload area -->
             <div class="upload-box" id="uploadBox" onclick="document.getElementById('imageInput').click()">
               <i class="bi bi-cloud-upload fs-2 text-muted"></i>
-              <p class="mb-1 fw-semibold">Click to upload product image</p>
-              <p class="small text-muted mb-0">JPG, PNG, WebP — Max 5MB</p>
-              {{ form.image(class="d-none", id="imageInput", accept="image/*") }}
+              <p class="mb-1 fw-semibold">Click to upload product image(s)</p>
+              <p class="small text-muted mb-0">JPG, PNG, WebP — Max 5MB each, up to 5 images</p>
+              <!-- Plain HTML input (not form.image): backend reads request.files.getlist("images") -->
+              <input type="file" name="images" id="imageInput" class="d-none"
+                     accept="image/*" multiple>
             </div>
 
             <!-- Image preview -->
-            <div id="imgPreview" class="mt-3" style="display:none;">
-              <img id="previewImg" src="" alt="Preview"
-                   style="width:120px;height:120px;object-fit:cover;border-radius:10px;border:2px solid #00C9A7;" />
-              <small class="d-block text-success mt-1">
-                <i class="bi bi-check-circle-fill me-1"></i>New image selected
-              </small>
-            </div>
+            <div id="imgPreview" class="mt-3 d-flex flex-wrap gap-2" style="display:none;"></div>
 
             {% for e in form.image.errors %}
               <div class="text-danger small mt-1">{{ e }}</div>
@@ -154,17 +150,28 @@
 
 {% block extra_js %}
 <script>
-// Show image preview when file selected
+// Show a thumbnail preview for each selected file
 document.getElementById('imageInput').addEventListener('change', function() {
-  const file = this.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    document.getElementById('previewImg').src = e.target.result;
-    document.getElementById('imgPreview').style.display = 'block';
-    document.getElementById('uploadBox').style.borderColor = '#00C9A7';
-  };
-  reader.readAsDataURL(file);
+  const files = Array.from(this.files || []);
+  const preview = document.getElementById('imgPreview');
+  preview.innerHTML = '';
+  if (!files.length) {
+    preview.style.display = 'none';
+    return;
+  }
+  files.slice(0, 5).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.alt = 'Preview';
+      img.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:10px;border:2px solid #00C9A7;';
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+  preview.style.display = 'flex';
+  document.getElementById('uploadBox').style.borderColor = '#00C9A7';
 });
 
 // Drag and drop
