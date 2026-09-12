@@ -25,148 +25,35 @@
   <div class="container">
     <div class="row g-5">
 
-      <!-- ── LEFT: Image Gallery ──────────────────────────────── -->
+      <!-- Product Image -->
       <div class="col-lg-5" data-aos="fade-right">
-
-        {% set all_imgs = product.all_images %}
-
-        <!-- Main image display -->
-        <div class="gallery-main" id="galleryMain">
-          {% if all_imgs %}
-            <img src="{{ url_for('static', filename='images/uploads/' + all_imgs[0].image) }}"
+        <div class="product-detail-img-wrap">
+          {% if product.discount_percent > 0 %}
+            <span class="pcard__badge pcard__badge--sale product-detail__badge">
+              -{{ product.discount_percent }}%
+            </span>
+          {% endif %}
+          {% if product.image and product.image.startswith('http') %}
+            <img src="{{ product.image }}"
                  alt="{{ product.name }}"
-                 class="gallery-main__img"
-                 id="mainImg"
+                 class="img-fluid rounded-3 product-detail__img"
                  onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
           {% else %}
             <img src="{{ url_for('static', filename='images/uploads/' + product.image) }}"
                  alt="{{ product.name }}"
-                 class="gallery-main__img"
-                 id="mainImg"
+                 class="img-fluid rounded-3 product-detail__img"
                  onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
           {% endif %}
-
-          {% if product.discount_percent > 0 %}
-            <span class="pcard__badge pcard__badge--sale gallery-badge">-{{ product.discount_percent }}%</span>
-          {% endif %}
-          {% if not product.in_stock %}
-            <span class="pcard__badge pcard__badge--oos gallery-badge" style="left:auto;right:12px;">Out of Stock</span>
-          {% endif %}
         </div>
-
-        <!-- Thumbnail strip -->
-        {% if all_imgs|length > 1 %}
-        <div class="gallery-thumbs mt-3">
-          {% for img in all_imgs %}
-          <div class="gallery-thumb {% if loop.first %}gallery-thumb--active{% endif %}"
-               onclick="switchImage('{{ url_for('static', filename='images/uploads/' + img.image) }}', this)">
-            <img src="{{ url_for('static', filename='images/uploads/' + img.image) }}"
-                 alt="Product image {{ loop.index }}"
-                 onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
-          </div>
-          {% endfor %}
-
-          <!-- Video thumbnail if exists -->
-          {% if product.video_url %}
-          <div class="gallery-thumb gallery-thumb--video" onclick="showVideo()">
-            <i class="bi bi-play-circle-fill"></i>
-            <span>Video</span>
-          </div>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        <!-- Video player (hidden until clicked) -->
-        {% if product.video_url %}
-        <div class="product-video mt-3" id="videoSection" style="display:none;">
-          <div class="product-video__header">
-            <i class="bi bi-play-circle-fill text-accent me-2"></i>
-            Product Video
-            <button class="btn btn-xs btn-outline-secondary ms-auto" onclick="hideVideo()">
-              <i class="bi bi-x"></i> Close
-            </button>
-          </div>
-
-          {% if product.video_platform == 'tiktok' %}
-            <!-- TikTok embed -->
-            <div class="product-video__tiktok">
-              <blockquote class="tiktok-embed"
-                          cite="{{ product.video_url }}"
-                          data-video-id="{{ product.video_url.split('/')[-1].split('?')[0] }}">
-                <a href="{{ product.video_url }}" target="_blank">Watch on TikTok</a>
-              </blockquote>
-              <script async src="https://www.tiktok.com/embed.js"></script>
-            </div>
-
-          {% elif product.video_platform == 'instagram' %}
-            <!-- Instagram embed -->
-            <div class="product-video__frame">
-              <iframe src="{{ product.embed_video_url }}"
-                      width="100%" height="400"
-                      frameborder="0" scrolling="no"
-                      allowtransparency="true" allow="encrypted-media">
-              </iframe>
-            </div>
-
-          {% elif product.video_platform == 'facebook' %}
-            <!-- Facebook embed -->
-            <div class="product-video__frame">
-              <iframe src="{{ product.embed_video_url }}"
-                      width="100%" height="400"
-                      style="border:none;overflow:hidden"
-                      scrolling="no" frameborder="0"
-                      allowfullscreen="true"
-                      allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
-              </iframe>
-            </div>
-
-          {% elif product.embed_video_url %}
-            <!-- YouTube or direct video -->
-            <div class="product-video__frame">
-              {% if 'youtube.com/embed' in product.embed_video_url %}
-                <iframe src="{{ product.embed_video_url }}"
-                        width="100%" height="315"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen>
-                </iframe>
-              {% else %}
-                <video controls width="100%" class="rounded">
-                  <source src="{{ product.embed_video_url }}" />
-                  Your browser does not support video.
-                </video>
-              {% endif %}
-            </div>
-          {% endif %}
-
-          <!-- Watch on platform button -->
-          <div class="mt-2 text-center">
-            <a href="{{ product.video_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
-              <i class="bi bi-box-arrow-up-right me-1"></i>
-              Watch on {{ product.video_platform|title if product.video_platform else 'Platform' }}
-            </a>
-          </div>
-        </div>
-
-        <!-- Video badge on main image -->
-        {% if not all_imgs|length > 1 %}
-        <button class="btn btn-accent w-100 mt-3" onclick="showVideo()">
-          <i class="bi bi-play-circle-fill me-2"></i> Watch Product Video
-        </button>
-        {% endif %}
-        {% endif %}
-
       </div>
 
-      <!-- ── RIGHT: Product Info ──────────────────────────────── -->
+      <!-- Product Info -->
       <div class="col-lg-7" data-aos="fade-left">
         <span class="product-detail__category-badge">
           {{ product.category.icon }} {{ product.category.name }}
         </span>
-
         <h1 class="product-detail__title mt-2">{{ product.name }}</h1>
 
-        <!-- Price -->
         <div class="product-detail__price-row my-3">
           <span class="product-detail__price">{{ product.formatted_price }}</span>
           {% if product.old_price and product.old_price > product.price %}
@@ -177,7 +64,6 @@
           {% endif %}
         </div>
 
-        <!-- Stock -->
         <div class="mb-3">
           {% if product.in_stock %}
             <span class="badge bg-success py-2 px-3">
@@ -190,29 +76,10 @@
           {% endif %}
         </div>
 
-        <!-- Description -->
         {% if product.description %}
           <p class="product-detail__description">{{ product.description }}</p>
         {% endif %}
 
-        <!-- Media info -->
-        <div class="product-media-info mb-3">
-          <span class="media-info-pill">
-            <i class="bi bi-images text-accent"></i>
-            {{ product.all_images|length if product.all_images else 1 }} Photo{{ 's' if (product.all_images|length > 1) else '' }}
-          </span>
-          {% if product.video_url %}
-          <span class="media-info-pill" style="cursor:pointer;" onclick="showVideo()">
-            <i class="bi bi-play-circle-fill text-accent"></i>
-            Video Available
-            {% if product.video_platform %}
-              ({{ product.video_platform|title }})
-            {% endif %}
-          </span>
-          {% endif %}
-        </div>
-
-        <!-- CTA Buttons -->
         <div class="d-flex flex-wrap gap-3 my-4">
           <a href="{{ wa_link }}" target="_blank" rel="noopener"
              class="btn btn-whatsapp btn-lg px-5">
@@ -223,14 +90,12 @@
           </a>
         </div>
 
-        <!-- Trust row -->
         <div class="product-detail__trust-row">
           <span><i class="bi bi-patch-check-fill text-accent"></i> Genuine Product</span>
-          <span><i class="bi bi-shield-fill-check text-accent"></i> Warranty</span>
+          <span><i class="bi bi-shield-fill-check text-accent"></i> Warranty Included</span>
           <span><i class="bi bi-truck text-accent"></i> Fast Delivery</span>
         </div>
 
-        <!-- Specifications -->
         {% if product.specifications %}
         <div class="product-detail__specs mt-4">
           <h5 class="product-detail__specs-title">Specifications</h5>
@@ -244,20 +109,16 @@
                     <span class="spec-val">{{ parts[1].strip() }}</span>
                   </div>
                 {% else %}
-                  <div class="spec-row">
-                    <span class="spec-val">{{ line.strip() }}</span>
-                  </div>
+                  <div class="spec-row"><span class="spec-val">{{ line.strip() }}</span></div>
                 {% endif %}
               {% endif %}
             {% endfor %}
           </div>
         </div>
         {% endif %}
-
       </div>
     </div>
 
-    <!-- ── Related Products ────────────────────────────────────── -->
     {% if related %}
     <div class="mt-5 pt-4 border-top">
       <h3 class="mb-4">Related Products</h3>
@@ -271,112 +132,4 @@
 
   </div>
 </section>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-// Switch main image on thumbnail click
-function switchImage(src, thumb) {
-  document.getElementById('mainImg').src = src;
-  document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('gallery-thumb--active'));
-  thumb.classList.add('gallery-thumb--active');
-  document.getElementById('videoSection').style.display = 'none';
-}
-
-// Show video
-function showVideo() {
-  document.getElementById('videoSection').style.display = 'block';
-  document.getElementById('videoSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('gallery-thumb--active'));
-  document.querySelector('.gallery-thumb--video')?.classList.add('gallery-thumb--active');
-}
-
-// Hide video
-function hideVideo() {
-  document.getElementById('videoSection').style.display = 'none';
-}
-</script>
-
-<style>
-/* Gallery */
-.gallery-main {
-  position: relative;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--aq-gray-100);
-  aspect-ratio: 1/1;
-}
-.gallery-main__img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.4s ease;
-}
-.gallery-main:hover .gallery-main__img { transform: scale(1.04); }
-.gallery-badge { top: 12px; left: 12px; font-size: .85rem; padding: 6px 14px; }
-
-/* Thumbnails */
-.gallery-thumbs {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.gallery-thumb {
-  width: 72px; height: 72px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 2px solid var(--aq-gray-200);
-  cursor: pointer;
-  transition: all .2s;
-}
-.gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.gallery-thumb:hover { border-color: var(--aq-teal); }
-.gallery-thumb--active { border-color: var(--aq-teal); box-shadow: 0 0 0 3px rgba(0,201,167,.2); }
-.gallery-thumb--video {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: var(--aq-navy);
-  color: var(--aq-teal);
-  font-size: 1.4rem;
-  gap: 2px;
-}
-.gallery-thumb--video span { font-size: .6rem; color: rgba(255,255,255,.7); font-weight: 600; }
-
-/* Video section */
-.product-video {
-  border: 1px solid var(--aq-gray-200);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-.product-video__header {
-  background: var(--aq-gray-100);
-  padding: 10px 16px;
-  font-weight: 600;
-  font-size: .875rem;
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid var(--aq-gray-200);
-}
-.product-video__frame { padding: 0; }
-.product-video__frame iframe,
-.product-video__frame video { display: block; }
-.product-video__tiktok { padding: 16px; }
-
-/* Media info pills */
-.product-media-info { display: flex; gap: 8px; flex-wrap: wrap; }
-.media-info-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(0,201,167,.08);
-  border: 1px solid rgba(0,201,167,.2);
-  color: var(--aq-navy);
-  padding: 4px 12px;
-  border-radius: 50px;
-  font-size: .78rem;
-  font-weight: 600;
-}
-</style>
 {% endblock %}
