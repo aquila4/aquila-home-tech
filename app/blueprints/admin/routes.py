@@ -1,15 +1,14 @@
 """
-app/blueprints/admin/routes.py – Admin dashboard: auth + CRUD for all models.
+app/blueprints/admin/routes.py – Admin dashboard CRUD.
+Supports multiple product images + video from any platform.
 """
 from slugify import slugify
-from flask import (
-    render_template, redirect, url_for, flash, request, abort
-)
+from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 
 from app import db
 from app.blueprints.admin import admin_bp
-from app.models import AdminUser, Product, Category, Inquiry, Testimonial
+from app.models import AdminUser, Product, ProductImage, Category, Inquiry, Testimonial
 from app.forms import LoginForm, ProductForm, CategoryForm, TestimonialForm
 from app.utils import save_product_image, delete_product_image
 
@@ -47,16 +46,16 @@ def logout():
 @login_required
 def dashboard():
     stats = {
-        "total_products": Product.query.count(),
-        "active_products": Product.query.filter_by(is_active=True).count(),
-        "featured_products": Product.query.filter_by(featured=True).count(),
-        "total_categories": Category.query.count(),
-        "total_inquiries": Inquiry.query.count(),
-        "unread_inquiries": Inquiry.query.filter_by(is_read=False).count(),
-        "total_testimonials": Testimonial.query.count(),
+        "total_products":      Product.query.count(),
+        "active_products":     Product.query.filter_by(is_active=True).count(),
+        "featured_products":   Product.query.filter_by(featured=True).count(),
+        "total_categories":    Category.query.count(),
+        "total_inquiries":     Inquiry.query.count(),
+        "unread_inquiries":    Inquiry.query.filter_by(is_read=False).count(),
+        "total_testimonials":  Testimonial.query.count(),
         "approved_testimonials": Testimonial.query.filter_by(is_approved=True).count(),
     }
-    recent_products = Product.query.order_by(Product.created_at.desc()).limit(5).all()
+    recent_products  = Product.query.order_by(Product.created_at.desc()).limit(5).all()
     recent_inquiries = Inquiry.query.order_by(Inquiry.created_at.desc()).limit(5).all()
     return render_template(
         "dashboard.html",
@@ -72,7 +71,7 @@ def dashboard():
 @admin_bp.route("/products")
 @login_required
 def products():
-    page = request.args.get("page", 1, type=int)
+    page     = request.args.get("page", 1, type=int)
     products = Product.query.order_by(Product.created_at.desc()).paginate(
         page=page, per_page=20, error_out=False
     )
@@ -86,35 +85,54 @@ def add_product():
     form.category_id.choices = [
         (c.id, c.name) for c in Category.query.order_by(Category.name).all()
     ]
+
     if form.validate_on_submit():
+        # Unique slug
         slug = slugify(form.name.data)
-        # Ensure unique slug
         base_slug, i = slug, 1
         while Product.query.filter_by(slug=slug).first():
             slug = f"{base_slug}-{i}"
             i += 1
 
-        image_name = "default_product.jpg"
-        if form.image.data and form.image.data.filename:
-            image_name = save_product_image(form.image.data)
-
         product = Product(
-            name=form.name.data,
-            slug=slug,
-            category_id=form.category_id.data,
-            description=form.description.data or "",
-            specifications=form.specifications.data or "",
-            price=form.price.data,
-            old_price=form.old_price.data,
-            stock_quantity=form.stock_quantity.data,
-            featured=form.featured.data,
-            is_active=form.is_active.data,
-            image=image_name,
+            name           = form.name.data,
+            slug           = slug,
+            category_id    = form.category_id.data,
+            description    = form.description.data or "",
+            specifications = form.specifications.data or "",
+            price          = form.price.data,
+            old_price      = form.old_price.data,
+            stock_quantity = form.stock_quantity.data,
+            featured       = form.featured.data,
+            is_active      = form.is_active.data,
+            video_url      = form.video_url.data or None,
+            video_platform = form.video_platform.data or None,
         )
         db.session.add(product)
+        db.session.flush()  # get product.id before commit
+
+        # Handle multiple images (up to 5)
+        uploaded_files = request.files.getlist("images")
+        saved_count = 0
+        for idx, file in enumerate(uploaded_files[:5]):
+            if file and file.filename:
+                filename = save_product_image(file)
+                is_main  = (idx == 0)  # first image is main
+                img = ProductImage(
+                    product_id = product.id,
+                    image      = filename,
+                    is_main    = is_main,
+                    sort_order = idx,
+                )
+                db.session.add(img)
+                if is_main:
+                    product.image = filename  # keep backward compat
+                saved_count += 1
+
         db.session.commit()
-        flash(f"Product '{product.name}' added successfully!", "success")
+        flash(f"✅ Product '{product.name}' added with {saved_count} image(s)!", "success")
         return redirect(url_for("admin.products"))
+
     return render_template("product_form.html", form=form, action="Add")
 
 
@@ -122,35 +140,63 @@ def add_product():
 @login_required
 def edit_product(pid: int):
     product = Product.query.get_or_404(pid)
-    form = ProductForm(obj=product)
+    form    = ProductForm(obj=product)
     form.category_id.choices = [
         (c.id, c.name) for c in Category.query.order_by(Category.name).all()
     ]
-    if form.validate_on_submit():
-        product.name = form.name.data
-        product.category_id = form.category_id.data
-        product.description = form.description.data or ""
-        product.specifications = form.specifications.data or ""
-        product.price = form.price.data
-        product.old_price = form.old_price.data
-        product.stock_quantity = form.stock_quantity.data
-        product.featured = form.featured.data
-        product.is_active = form.is_active.data
 
-        if form.image.data and form.image.data.filename:
-            delete_product_image(product.image)
-            product.image = save_product_image(form.image.data)
+    if form.validate_on_submit():
+        product.name           = form.name.data
+        product.category_id    = form.category_id.data
+        product.description    = form.description.data or ""
+        product.specifications = form.specifications.data or ""
+        product.price          = form.price.data
+        product.old_price      = form.old_price.data
+        product.stock_quantity = form.stock_quantity.data
+        product.featured       = form.featured.data
+        product.is_active      = form.is_active.data
+        product.video_url      = form.video_url.data or None
+        product.video_platform = form.video_platform.data or None
+
+        # Add new images (up to 5 total)
+        uploaded_files = request.files.getlist("images")
+        existing_count = product.images.count()
+        slots_left     = max(0, 5 - existing_count)
+
+        for idx, file in enumerate(uploaded_files[:slots_left]):
+            if file and file.filename:
+                filename  = save_product_image(file)
+                is_main   = (existing_count == 0 and idx == 0)
+                img       = ProductImage(
+                    product_id = product.id,
+                    image      = filename,
+                    is_main    = is_main,
+                    sort_order = existing_count + idx,
+                )
+                db.session.add(img)
+                if is_main:
+                    product.image = filename
 
         db.session.commit()
-        flash(f"Product '{product.name}' updated!", "success")
+        flash(f"✅ Product '{product.name}' updated!", "success")
         return redirect(url_for("admin.products"))
-    return render_template("product_form.html", form=form, product=product, action="Edit")
+
+    existing_images = product.images.order_by(ProductImage.sort_order).all()
+    return render_template(
+        "product_form.html",
+        form=form, product=product,
+        existing_images=existing_images,
+        action="Edit"
+    )
 
 
 @admin_bp.route("/products/<int:pid>/delete", methods=["POST"])
 @login_required
 def delete_product(pid: int):
     product = Product.query.get_or_404(pid)
+    # Delete all images from disk
+    for img in product.images.all():
+        delete_product_image(img.image)
     delete_product_image(product.image)
     db.session.delete(product)
     db.session.commit()
@@ -158,10 +204,49 @@ def delete_product(pid: int):
     return redirect(url_for("admin.products"))
 
 
+@admin_bp.route("/products/<int:pid>/delete-image/<int:iid>", methods=["POST"])
+@login_required
+def delete_product_image_route(pid: int, iid: int):
+    img = ProductImage.query.get_or_404(iid)
+    delete_product_image(img.image)
+
+    # If deleted image was main, promote next image
+    if img.is_main:
+        product = Product.query.get(pid)
+        db.session.delete(img)
+        db.session.flush()
+        next_img = ProductImage.query.filter_by(product_id=pid).order_by(ProductImage.sort_order).first()
+        if next_img:
+            next_img.is_main  = True
+            product.image     = next_img.image
+    else:
+        db.session.delete(img)
+
+    db.session.commit()
+    flash("Image deleted.", "info")
+    return redirect(url_for("admin.edit_product", pid=pid))
+
+
+@admin_bp.route("/products/<int:pid>/set-main-image/<int:iid>", methods=["POST"])
+@login_required
+def set_main_image(pid: int, iid: int):
+    product = Product.query.get_or_404(pid)
+    # Unset all main
+    for img in product.images.all():
+        img.is_main = False
+    # Set new main
+    new_main          = ProductImage.query.get_or_404(iid)
+    new_main.is_main  = True
+    product.image     = new_main.image
+    db.session.commit()
+    flash("Main image updated!", "success")
+    return redirect(url_for("admin.edit_product", pid=pid))
+
+
 @admin_bp.route("/products/<int:pid>/toggle-featured", methods=["POST"])
 @login_required
 def toggle_featured(pid: int):
-    product = Product.query.get_or_404(pid)
+    product          = Product.query.get_or_404(pid)
     product.featured = not product.featured
     db.session.commit()
     status = "featured" if product.featured else "unfeatured"
@@ -189,8 +274,7 @@ def add_category():
             flash("A category with that name already exists.", "danger")
         else:
             cat = Category(
-                name=form.name.data,
-                slug=slug,
+                name=form.name.data, slug=slug,
                 icon=form.icon.data or "🛒",
                 description=form.description.data or "",
             )
@@ -204,12 +288,12 @@ def add_category():
 @admin_bp.route("/categories/<int:cid>/edit", methods=["GET", "POST"])
 @login_required
 def edit_category(cid: int):
-    cat = Category.query.get_or_404(cid)
+    cat  = Category.query.get_or_404(cid)
     form = CategoryForm(obj=cat)
     if form.validate_on_submit():
-        cat.name = form.name.data
-        cat.slug = slugify(form.name.data)
-        cat.icon = form.icon.data or "🛒"
+        cat.name        = form.name.data
+        cat.slug        = slugify(form.name.data)
+        cat.icon        = form.icon.data or "🛒"
         cat.description = form.description.data or ""
         db.session.commit()
         flash(f"Category '{cat.name}' updated!", "success")
@@ -236,7 +320,7 @@ def delete_category(cid: int):
 @admin_bp.route("/inquiries")
 @login_required
 def inquiries():
-    page = request.args.get("page", 1, type=int)
+    page      = request.args.get("page", 1, type=int)
     inquiries = Inquiry.query.order_by(Inquiry.created_at.desc()).paginate(
         page=page, per_page=20, error_out=False
     )
@@ -246,7 +330,7 @@ def inquiries():
 @admin_bp.route("/inquiries/<int:iid>")
 @login_required
 def inquiry_detail(iid: int):
-    inquiry = Inquiry.query.get_or_404(iid)
+    inquiry         = Inquiry.query.get_or_404(iid)
     inquiry.is_read = True
     db.session.commit()
     return render_template("inquiry_detail.html", inquiry=inquiry)
@@ -278,11 +362,11 @@ def add_testimonial():
     form = TestimonialForm()
     if form.validate_on_submit():
         t = Testimonial(
-            customer_name=form.customer_name.data,
-            location=form.location.data or "Ilorin, Kwara State",
-            message=form.message.data,
-            rating=form.rating.data,
-            is_approved=form.is_approved.data,
+            customer_name = form.customer_name.data,
+            location      = form.location.data or "Ilorin, Kwara State",
+            message       = form.message.data,
+            rating        = form.rating.data,
+            is_approved   = form.is_approved.data,
         )
         db.session.add(t)
         db.session.commit()
@@ -294,14 +378,14 @@ def add_testimonial():
 @admin_bp.route("/testimonials/<int:tid>/edit", methods=["GET", "POST"])
 @login_required
 def edit_testimonial(tid: int):
-    t = Testimonial.query.get_or_404(tid)
+    t    = Testimonial.query.get_or_404(tid)
     form = TestimonialForm(obj=t)
     if form.validate_on_submit():
         t.customer_name = form.customer_name.data
-        t.location = form.location.data or "Ilorin, Kwara State"
-        t.message = form.message.data
-        t.rating = form.rating.data
-        t.is_approved = form.is_approved.data
+        t.location      = form.location.data or "Ilorin, Kwara State"
+        t.message       = form.message.data
+        t.rating        = form.rating.data
+        t.is_approved   = form.is_approved.data
         db.session.commit()
         flash("Testimonial updated!", "success")
         return redirect(url_for("admin.testimonials"))
@@ -321,7 +405,7 @@ def delete_testimonial(tid: int):
 @admin_bp.route("/testimonials/<int:tid>/toggle", methods=["POST"])
 @login_required
 def toggle_testimonial(tid: int):
-    t = Testimonial.query.get_or_404(tid)
+    t             = Testimonial.query.get_or_404(tid)
     t.is_approved = not t.is_approved
     db.session.commit()
     status = "approved" if t.is_approved else "hidden"

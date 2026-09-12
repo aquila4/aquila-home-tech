@@ -4,13 +4,10 @@
 
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-lg-9">
-
+  <div class="col-lg-10">
     <div class="admin-card">
       <div class="admin-card__header">
-        <h6 class="mb-0">
-          <i class="bi bi-box-seam me-2"></i>{{ action }} Product
-        </h6>
+        <h6 class="mb-0"><i class="bi bi-box-seam me-2"></i>{{ action }} Product</h6>
       </div>
 
       <form method="POST" enctype="multipart/form-data" novalidate class="p-4">
@@ -20,76 +17,154 @@
 
           <!-- Name -->
           <div class="col-12">
-            <label class="form-label fw-semibold" for="name">Product Name *</label>
-            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), id="name") }}
+            <label class="form-label fw-semibold">Product Name *</label>
+            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
             {% for e in form.name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
           </div>
 
-          <!-- Category -->
+          <!-- Category + Stock -->
           <div class="col-md-6">
-            <label class="form-label fw-semibold" for="category_id">Category *</label>
-            {{ form.category_id(class="form-select" + (" is-invalid" if form.category_id.errors else ""), id="category_id") }}
-            {% for e in form.category_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+            <label class="form-label fw-semibold">Category *</label>
+            {{ form.category_id(class="form-select" + (" is-invalid" if form.category_id.errors else "")) }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Stock Quantity *</label>
+            {{ form.stock_quantity(class="form-control") }}
           </div>
 
-          <!-- Price -->
-          <div class="col-md-3">
-            <label class="form-label fw-semibold" for="price">Price (₦) *</label>
-            {{ form.price(class="form-control" + (" is-invalid" if form.price.errors else ""), id="price") }}
+          <!-- Price + Old Price -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Selling Price (₦) *</label>
+            {{ form.price(class="form-control" + (" is-invalid" if form.price.errors else "")) }}
             {% for e in form.price.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
           </div>
-
-          <!-- Old price -->
-          <div class="col-md-3">
-            <label class="form-label fw-semibold" for="old_price">Old Price (₦)</label>
-            {{ form.old_price(class="form-control" + (" is-invalid" if form.old_price.errors else ""), id="old_price") }}
-            <small class="text-muted">For discount display</small>
-          </div>
-
-          <!-- Stock -->
-          <div class="col-md-4">
-            <label class="form-label fw-semibold" for="stock_quantity">Stock Quantity *</label>
-            {{ form.stock_quantity(class="form-control" + (" is-invalid" if form.stock_quantity.errors else ""), id="stock_quantity") }}
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Old Price (₦) <small class="text-muted">for discount display</small></label>
+            {{ form.old_price(class="form-control") }}
           </div>
 
           <!-- Checkboxes -->
-          <div class="col-md-4 d-flex align-items-end gap-4">
+          <div class="col-12 d-flex gap-4">
             <div class="form-check">
               {{ form.featured(class="form-check-input", id="featured") }}
-              <label class="form-check-label" for="featured">⭐ Featured</label>
+              <label class="form-check-label" for="featured">⭐ Featured on Homepage</label>
             </div>
             <div class="form-check">
               {{ form.is_active(class="form-check-input", id="is_active") }}
-              <label class="form-check-label" for="is_active">✅ Active</label>
+              <label class="form-check-label" for="is_active">✅ Active (visible in store)</label>
             </div>
           </div>
 
-          <!-- Image upload -->
-          <div class="col-md-4">
-            <label class="form-label fw-semibold" for="image">Product Image</label>
-            {{ form.image(class="form-control" + (" is-invalid" if form.image.errors else ""), id="image", accept="image/*") }}
-            {% for e in form.image.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
-            {% if product and product.image and product.image != 'default_product.jpg' %}
-              <div class="mt-2">
-                <img src="{{ url_for('static', filename='images/uploads/' + product.image) }}"
-                     alt="Current image" class="admin-product-thumb-lg" />
-                <small class="text-muted d-block">Current image</small>
+          <!-- ── IMAGES SECTION ─────────────────────────────────────── -->
+          <div class="col-12">
+            <div class="media-section">
+              <div class="media-section__header">
+                <i class="bi bi-images me-2"></i>
+                Product Images
+                <span class="badge bg-secondary ms-2">Up to 5 images</span>
               </div>
-            {% endif %}
+
+              <!-- Existing images (edit mode) -->
+              {% if existing_images %}
+              <div class="existing-images mb-3">
+                <p class="small text-muted mb-2">Current images — click ⭐ to set as main, 🗑 to delete:</p>
+                <div class="d-flex flex-wrap gap-2">
+                  {% for img in existing_images %}
+                  <div class="existing-img-card {% if img.is_main %}existing-img-card--main{% endif %}">
+                    <img src="{{ url_for('static', filename='images/uploads/' + img.image) }}"
+                         alt="Product image" />
+                    {% if img.is_main %}
+                      <span class="existing-img-card__main-badge">⭐ Main</span>
+                    {% endif %}
+                    <div class="existing-img-card__actions">
+                      {% if not img.is_main %}
+                      <form method="POST"
+                            action="{{ url_for('admin.set_main_image', pid=product.id, iid=img.id) }}"
+                            class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                        <button type="submit" class="btn btn-xs btn-warning" title="Set as main">⭐</button>
+                      </form>
+                      {% endif %}
+                      <form method="POST"
+                            action="{{ url_for('admin.delete_product_image_route', pid=product.id, iid=img.id) }}"
+                            class="d-inline"
+                            onsubmit="return confirm('Delete this image?')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                        <button type="submit" class="btn btn-xs btn-danger">🗑</button>
+                      </form>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+
+              <!-- Upload new images -->
+              <div class="upload-area" id="uploadArea">
+                <i class="bi bi-cloud-upload fs-2 text-muted"></i>
+                <p class="mb-1 fw-semibold">Click or drag images here</p>
+                <p class="small text-muted mb-2">JPG, PNG, WebP — up to 5 images, 5MB each</p>
+                {{ form.images(class="d-none", id="imageInput", multiple=True, accept="image/*") }}
+                <label for="imageInput" class="btn btn-outline-primary btn-sm">
+                  <i class="bi bi-folder2-open me-2"></i>Choose Images
+                </label>
+              </div>
+
+              <!-- Image preview -->
+              <div id="imagePreview" class="d-flex flex-wrap gap-2 mt-3"></div>
+            </div>
+          </div>
+
+          <!-- ── VIDEO SECTION ──────────────────────────────────────── -->
+          <div class="col-12">
+            <div class="media-section">
+              <div class="media-section__header">
+                <i class="bi bi-play-circle me-2"></i>
+                Product Video
+                <span class="badge bg-success ms-2">Any Platform</span>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label fw-semibold">Video Platform</label>
+                  {{ form.video_platform(class="form-select") }}
+                </div>
+                <div class="col-md-8">
+                  <label class="form-label fw-semibold">Video URL</label>
+                  {{ form.video_url(class="form-control",
+                     placeholder="Paste YouTube, TikTok, Facebook, or Instagram video link here...") }}
+                  <small class="text-muted">
+                    Examples:<br/>
+                    YouTube: https://www.youtube.com/watch?v=xxxxx<br/>
+                    TikTok: https://www.tiktok.com/@username/video/xxxxx<br/>
+                    Facebook: https://www.facebook.com/watch?v=xxxxx<br/>
+                    Instagram: https://www.instagram.com/reel/xxxxx
+                  </small>
+                </div>
+              </div>
+
+              {% if product and product.video_url %}
+              <div class="mt-3 p-3 bg-light rounded">
+                <p class="small text-muted mb-1">Current video:</p>
+                <a href="{{ product.video_url }}" target="_blank" class="text-primary small">
+                  <i class="bi bi-play-circle me-1"></i>{{ product.video_url|truncate(60) }}
+                </a>
+              </div>
+              {% endif %}
+            </div>
           </div>
 
           <!-- Description -->
           <div class="col-12">
-            <label class="form-label fw-semibold" for="description">Description</label>
-            {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""),
-               id="description", rows="4", placeholder="Detailed product description...") }}
+            <label class="form-label fw-semibold">Description</label>
+            {{ form.description(class="form-control", rows="4",
+               placeholder="Describe the product features and benefits...") }}
           </div>
 
           <!-- Specifications -->
           <div class="col-12">
-            <label class="form-label fw-semibold" for="specifications">Specifications</label>
-            {{ form.specifications(class="form-control font-monospace" + (" is-invalid" if form.specifications.errors else ""),
-               id="specifications", rows="6",
+            <label class="form-label fw-semibold">Specifications</label>
+            {{ form.specifications(class="form-control font-monospace", rows="6",
                placeholder="Brand: Samsung&#10;Screen Size: 55 inches&#10;Resolution: 4K UHD&#10;Smart TV: Yes&#10;Warranty: 1 Year") }}
             <small class="text-muted">One spec per line in "Key: Value" format</small>
           </div>
@@ -107,7 +182,113 @@
         </div>
       </form>
     </div>
-
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Image preview
+document.getElementById('imageInput').addEventListener('change', function() {
+  const preview = document.getElementById('imagePreview');
+  preview.innerHTML = '';
+  const files = Array.from(this.files).slice(0, 5);
+  files.forEach((file, idx) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.className = 'preview-img-wrap';
+      div.innerHTML = `
+        <img src="${e.target.result}" alt="Preview" />
+        ${idx === 0 ? '<span class="preview-main-badge">Main</span>' : ''}
+      `;
+      preview.appendChild(div);
+    };
+    reader.readAsDataURL(file);
+  });
+  if (files.length > 0) {
+    document.getElementById('uploadArea').style.borderColor = '#00C9A7';
+  }
+});
+
+// Drag and drop
+const uploadArea = document.getElementById('uploadArea');
+uploadArea.addEventListener('dragover', e => {
+  e.preventDefault();
+  uploadArea.style.borderColor = '#00C9A7';
+  uploadArea.style.background = 'rgba(0,201,167,.05)';
+});
+uploadArea.addEventListener('dragleave', () => {
+  uploadArea.style.borderColor = '';
+  uploadArea.style.background = '';
+});
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault();
+  const input = document.getElementById('imageInput');
+  input.files = e.dataTransfer.files;
+  input.dispatchEvent(new Event('change'));
+});
+</script>
+
+<style>
+.media-section {
+  border: 1px solid #E8ECF2;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.media-section__header {
+  background: #F5F7FA;
+  padding: 12px 20px;
+  font-weight: 700;
+  font-size: .875rem;
+  color: #0B1F3A;
+  border-bottom: 1px solid #E8ECF2;
+}
+.upload-area {
+  border: 2px dashed #D1D5DB;
+  border-radius: 10px;
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  margin: 16px;
+}
+.upload-area:hover { border-color: #00C9A7; background: rgba(0,201,167,.03); }
+.existing-images { padding: 0 16px; }
+.existing-img-card {
+  position: relative;
+  width: 90px; height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #E8ECF2;
+}
+.existing-img-card--main { border-color: #00C9A7; }
+.existing-img-card img { width: 100%; height: 100%; object-fit: cover; }
+.existing-img-card__main-badge {
+  position: absolute; top: 4px; left: 4px;
+  background: #00C9A7; color: #fff;
+  font-size: .55rem; font-weight: 700;
+  padding: 2px 5px; border-radius: 4px;
+}
+.existing-img-card__actions {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,.6);
+  display: flex; justify-content: center; gap: 4px;
+  padding: 4px;
+}
+.preview-img-wrap {
+  position: relative;
+  width: 90px; height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #00C9A7;
+}
+.preview-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.preview-main-badge {
+  position: absolute; top: 4px; left: 4px;
+  background: #00C9A7; color: #fff;
+  font-size: .55rem; font-weight: 700;
+  padding: 2px 5px; border-radius: 4px;
+}
+</style>
 {% endblock %}
