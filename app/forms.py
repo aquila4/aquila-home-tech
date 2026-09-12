@@ -25,6 +25,7 @@ class ProductForm(FlaskForm):
     stock_quantity = IntegerField("Stock Quantity", validators=[DataRequired(), NumberRange(min=0)], default=0)
     featured       = BooleanField("Featured Product")
     is_active      = BooleanField("Active (visible in store)", default=True)
+    video_url      = StringField("Video URL", validators=[Optional(), Length(max=500)])
     image          = FileField(
         "Product Image",
         validators=[
