@@ -63,6 +63,23 @@
             </div>
           </div>
 
+          <!-- Video URL -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">
+              Product Video URL
+              <small class="text-muted">— YouTube, TikTok, Facebook, or Instagram link</small>
+            </label>
+            {{ form.video_url(class="form-control" + (" is-invalid" if form.video_url.errors else ""),
+               placeholder="https://youtube.com/watch?v=...") }}
+            {% for e in form.video_url.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+            {% if product and product.video_url %}
+              <small class="text-muted d-block mt-1">
+                Current: <a href="{{ product.video_url }}" target="_blank" rel="noopener">{{ product.video_url }}</a>
+                ({{ product.video_platform or "unknown" }})
+              </small>
+            {% endif %}
+          </div>
+
           <!-- Image Upload -->
           <div class="col-12">
             <label class="form-label fw-semibold">Product Image</label>
