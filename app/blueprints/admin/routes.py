@@ -13,6 +13,22 @@ from app.forms import LoginForm, ProductForm, CategoryForm, TestimonialForm
 from app.utils import save_product_image, delete_product_image
 
 
+def detect_video_platform(url):
+    """Guess the video platform from a raw URL so admins don't have to pick it."""
+    if not url:
+        return None
+    url = url.lower()
+    if "youtube.com" in url or "youtu.be" in url:
+        return "youtube"
+    if "tiktok.com" in url:
+        return "tiktok"
+    if "facebook.com" in url or "fb.watch" in url:
+        return "facebook"
+    if "instagram.com" in url:
+        return "instagram"
+    return "other"
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Auth
 # ─────────────────────────────────────────────────────────────────────────────
@@ -106,7 +122,7 @@ def add_product():
             featured       = form.featured.data,
             is_active      = form.is_active.data,
             video_url      = form.video_url.data or None,
-            video_platform = form.video_platform.data or None,
+            video_platform = detect_video_platform(form.video_url.data),
         )
         db.session.add(product)
         db.session.flush()  # get product.id before commit
@@ -156,7 +172,7 @@ def edit_product(pid: int):
         product.featured       = form.featured.data
         product.is_active      = form.is_active.data
         product.video_url      = form.video_url.data or None
-        product.video_platform = form.video_platform.data or None
+        product.video_platform = detect_video_platform(form.video_url.data)
 
         # Add new images (up to 5 total)
         uploaded_files = request.files.getlist("images")
@@ -399,15 +415,4 @@ def delete_testimonial(tid: int):
     db.session.delete(t)
     db.session.commit()
     flash("Testimonial deleted.", "warning")
-    return redirect(url_for("admin.testimonials"))
-
-
-@admin_bp.route("/testimonials/<int:tid>/toggle", methods=["POST"])
-@login_required
-def toggle_testimonial(tid: int):
-    t             = Testimonial.query.get_or_404(tid)
-    t.is_approved = not t.is_approved
-    db.session.commit()
-    status = "approved" if t.is_approved else "hidden"
-    flash(f"Testimonial by {t.customer_name} is now {status}.", "info")
     return redirect(url_for("admin.testimonials"))
