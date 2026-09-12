@@ -150,46 +150,54 @@
 
 {% block extra_js %}
 <script>
-// Show a thumbnail preview for each selected file
-document.getElementById('imageInput').addEventListener('change', function() {
-  const files = Array.from(this.files || []);
-  const preview = document.getElementById('imgPreview');
-  preview.innerHTML = '';
-  if (!files.length) {
-    preview.style.display = 'none';
+document.addEventListener('DOMContentLoaded', function () {
+  const imageInput = document.getElementById('imageInput');
+  const uploadBox  = document.getElementById('uploadBox');
+  const preview    = document.getElementById('imgPreview');
+
+  if (!imageInput || !uploadBox || !preview) {
+    console.error('Upload widget: expected element missing from the page.');
     return;
   }
-  files.slice(0, 5).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const img = document.createElement('img');
-      img.src = e.target.result;
-      img.alt = 'Preview';
-      img.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:10px;border:2px solid #00C9A7;';
-      preview.appendChild(img);
-    };
-    reader.readAsDataURL(file);
-  });
-  preview.style.display = 'flex';
-  document.getElementById('uploadBox').style.borderColor = '#00C9A7';
-});
 
-// Drag and drop
-const uploadBox = document.getElementById('uploadBox');
-uploadBox.addEventListener('dragover', e => {
-  e.preventDefault();
-  uploadBox.style.borderColor = '#00C9A7';
-  uploadBox.style.background = 'rgba(0,201,167,.05)';
-});
-uploadBox.addEventListener('dragleave', () => {
-  uploadBox.style.borderColor = '';
-  uploadBox.style.background = '';
-});
-uploadBox.addEventListener('drop', e => {
-  e.preventDefault();
-  const input = document.getElementById('imageInput');
-  input.files = e.dataTransfer.files;
-  input.dispatchEvent(new Event('change'));
+  // Show a thumbnail preview for each selected file
+  imageInput.addEventListener('change', function () {
+    const files = Array.from(this.files || []);
+    preview.innerHTML = '';
+    if (!files.length) {
+      preview.style.display = 'none';
+      return;
+    }
+    files.slice(0, 5).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.alt = 'Preview';
+        img.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:10px;border:2px solid #00C9A7;';
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+    preview.style.display = 'flex';
+    uploadBox.style.borderColor = '#00C9A7';
+  });
+
+  // Drag and drop
+  uploadBox.addEventListener('dragover', e => {
+    e.preventDefault();
+    uploadBox.style.borderColor = '#00C9A7';
+    uploadBox.style.background = 'rgba(0,201,167,.05)';
+  });
+  uploadBox.addEventListener('dragleave', () => {
+    uploadBox.style.borderColor = '';
+    uploadBox.style.background = '';
+  });
+  uploadBox.addEventListener('drop', e => {
+    e.preventDefault();
+    imageInput.files = e.dataTransfer.files;
+    imageInput.dispatchEvent(new Event('change'));
+  });
 });
 </script>
 
