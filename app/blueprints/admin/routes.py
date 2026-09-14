@@ -1,6 +1,6 @@
 """
 app/blueprints/admin/routes.py
-Full support: multiple images (Cloudinary) + video from any platform.
+Clean version - single image with Cloudinary. No video yet.
 """
 from slugify import slugify
 from flask import render_template, redirect, url_for, flash, request
@@ -87,8 +87,6 @@ def add_product():
             price=form.price.data, old_price=form.old_price.data,
             stock_quantity=form.stock_quantity.data,
             featured=form.featured.data, is_active=form.is_active.data,
-            video_url=form.video_url.data or None,
-            video_platform=form.video_platform.data or None,
         )
         db.session.add(product)
         db.session.flush()
@@ -129,8 +127,6 @@ def edit_product(pid):
         product.stock_quantity = form.stock_quantity.data
         product.featured       = form.featured.data
         product.is_active      = form.is_active.data
-        product.video_url      = form.video_url.data or None
-        product.video_platform = form.video_platform.data or None
 
         # Add new images (up to 5 total)
         uploaded = request.files.getlist("images")
