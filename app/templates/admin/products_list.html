@@ -15,7 +15,8 @@
     <table class="table admin-table mb-0">
       <thead>
         <tr>
-          <th style="width:50px">#</th>
+          <th>#</th>
+          <th>Image</th>
           <th>Product</th>
           <th>Category</th>
           <th>Price</th>
@@ -30,12 +31,21 @@
         <tr>
           <td class="text-muted small">{{ p.id }}</td>
           <td>
-            <div class="d-flex align-items-center gap-2">
-              <img src="{{ url_for('static', filename='images/uploads/' + p.image) }}"
-                   alt="{{ p.name }}" class="admin-product-thumb"
+            {# Handle both Cloudinary URLs and local filenames #}
+            {% if p.image and p.image.startswith('http') %}
+              <img src="{{ p.image }}"
+                   alt="{{ p.name }}"
+                   class="admin-product-thumb"
                    onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
-              <span class="fw-medium">{{ p.name|truncate(40) }}</span>
-            </div>
+            {% else %}
+              <img src="{{ url_for('static', filename='images/uploads/' + p.image) }}"
+                   alt="{{ p.name }}"
+                   class="admin-product-thumb"
+                   onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
+            {% endif %}
+          </td>
+          <td>
+            <span class="fw-medium">{{ p.name|truncate(35) }}</span>
           </td>
           <td><small class="text-muted">{{ p.category.name }}</small></td>
           <td class="fw-semibold">{{ p.formatted_price }}</td>
@@ -47,9 +57,12 @@
             {% endif %}
           </td>
           <td>
-            <form method="POST" action="{{ url_for('admin.toggle_featured', pid=p.id) }}" class="d-inline">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="btn btn-xs {% if p.featured %}btn-warning{% else %}btn-outline-secondary{% endif %}">
+            <form method="POST"
+                  action="{{ url_for('admin.toggle_featured', pid=p.id) }}"
+                  class="d-inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button type="submit"
+                      class="btn btn-xs {% if p.featured %}btn-warning{% else %}btn-outline-secondary{% endif %}">
                 <i class="bi bi-star{% if p.featured %}-fill{% endif %}"></i>
               </button>
             </form>
@@ -63,18 +76,22 @@
           </td>
           <td>
             <div class="d-flex gap-1">
-              <a href="{{ url_for('products.detail', slug=p.slug) }}" target="_blank"
-                 class="btn btn-xs btn-outline-info" title="View">
+              <a href="{{ url_for('products.detail', slug=p.slug) }}"
+                 target="_blank"
+                 class="btn btn-xs btn-outline-info" title="View on site">
                 <i class="bi bi-eye"></i>
               </a>
               <a href="{{ url_for('admin.edit_product', pid=p.id) }}"
                  class="btn btn-xs btn-outline-primary" title="Edit">
                 <i class="bi bi-pencil"></i>
               </a>
-              <form method="POST" action="{{ url_for('admin.delete_product', pid=p.id) }}"
-                    class="d-inline" onsubmit="return confirm('Delete {{ p.name }}? This cannot be undone.')">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="btn btn-xs btn-outline-danger" title="Delete">
+              <form method="POST"
+                    action="{{ url_for('admin.delete_product', pid=p.id) }}"
+                    class="d-inline"
+                    onsubmit="return confirm('Delete {{ p.name }}? This cannot be undone.')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <button type="submit"
+                        class="btn btn-xs btn-outline-danger" title="Delete">
                   <i class="bi bi-trash"></i>
                 </button>
               </form>
@@ -83,8 +100,9 @@
         </tr>
         {% else %}
         <tr>
-          <td colspan="8" class="text-center text-muted py-4">
-            No products yet. <a href="{{ url_for('admin.add_product') }}">Add one</a>
+          <td colspan="9" class="text-center text-muted py-4">
+            No products yet.
+            <a href="{{ url_for('admin.add_product') }}">Add one</a>
           </td>
         </tr>
         {% endfor %}
@@ -98,19 +116,25 @@
     <nav>
       <ul class="pagination pagination-sm mb-0">
         <li class="page-item {% if not products.has_prev %}disabled{% endif %}">
-          <a class="page-link" href="{{ url_for('admin.products', page=products.prev_num) }}">‹</a>
+          <a class="page-link"
+             href="{{ url_for('admin.products', page=products.prev_num) }}">‹</a>
         </li>
-        {% for p in products.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+        {% for p in products.iter_pages(left_edge=1, right_edge=1,
+                                         left_current=2, right_current=2) %}
           {% if p %}
             <li class="page-item {% if p == products.page %}active{% endif %}">
-              <a class="page-link" href="{{ url_for('admin.products', page=p) }}">{{ p }}</a>
+              <a class="page-link"
+                 href="{{ url_for('admin.products', page=p) }}">{{ p }}</a>
             </li>
           {% else %}
-            <li class="page-item disabled"><span class="page-link">…</span></li>
+            <li class="page-item disabled">
+              <span class="page-link">…</span>
+            </li>
           {% endif %}
         {% endfor %}
         <li class="page-item {% if not products.has_next %}disabled{% endif %}">
-          <a class="page-link" href="{{ url_for('admin.products', page=products.next_num) }}">›</a>
+          <a class="page-link"
+             href="{{ url_for('admin.products', page=products.next_num) }}">›</a>
         </li>
       </ul>
     </nav>
