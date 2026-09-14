@@ -1,17 +1,17 @@
 """
 app/utils.py - Image upload via Cloudinary.
-Images are stored permanently in the cloud - never lost on Railway redeploy.
+Credentials loaded from environment variables only - never hardcoded.
 """
 import os
 import cloudinary
 import cloudinary.uploader
 from flask import current_app
 
-# Configure Cloudinary
+# Configure Cloudinary from environment variables only
 cloudinary.config(
-    cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME", "do8npxymr"),
-    api_key    = os.environ.get("CLOUDINARY_API_KEY",    "478287198411895"),
-    api_secret = os.environ.get("CLOUDINARY_API_SECRET", "mbNy9qwEbrzg76lCNlCqdhojXPE"),
+    cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key    = os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret = os.environ.get("CLOUDINARY_API_SECRET"),
     secure     = True,
 )
 
@@ -19,7 +19,7 @@ cloudinary.config(
 def save_product_image(file_storage) -> str:
     """
     Upload image to Cloudinary.
-    Returns the full Cloudinary URL (https://res.cloudinary.com/...)
+    Returns the full Cloudinary URL to store in the database.
     """
     try:
         result = cloudinary.uploader.upload(
@@ -31,19 +31,16 @@ def save_product_image(file_storage) -> str:
                 {"fetch_format": "auto"},
             ],
         )
-        # Return full secure URL - this is what gets saved to database
         return result["secure_url"]
 
     except Exception as e:
-        if current_app:
-            current_app.logger.error(f"Cloudinary upload error: {e}")
         print(f"Cloudinary upload error: {e}")
         return "default_product.jpg"
 
 
 def delete_product_image(image_url: str):
     """
-    Delete image from Cloudinary using its URL.
+    Delete image from Cloudinary.
     Skips default image and non-Cloudinary URLs.
     """
     if not image_url:
@@ -54,12 +51,10 @@ def delete_product_image(image_url: str):
         return
 
     try:
-        # Extract public_id from Cloudinary URL
-        # URL: https://res.cloudinary.com/cloud/image/upload/v123/folder/file.jpg
+        # Extract public_id from URL
         parts = image_url.split("/upload/")
         if len(parts) < 2:
             return
-        # Remove version (v1234/) and extension
         after_upload = parts[1]
         if after_upload.startswith("v") and "/" in after_upload:
             after_upload = "/".join(after_upload.split("/")[1:])
@@ -67,13 +62,10 @@ def delete_product_image(image_url: str):
         cloudinary.uploader.destroy(public_id)
 
     except Exception as e:
-        if current_app:
-            current_app.logger.error(f"Cloudinary delete error: {e}")
         print(f"Cloudinary delete error: {e}")
 
 
 def format_naira(value) -> str:
-    """Format number as Nigerian Naira."""
     try:
         return f"₦{float(value):,.2f}"
     except (TypeError, ValueError):
