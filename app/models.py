@@ -1,61 +1,40 @@
 """
 app/models.py – SQLAlchemy ORM models.
-Updated to support multiple product images and video from any platform.
+Supports multiple product images and video from any platform.
 """
 from datetime import datetime, timezone
-from slugify import slugify
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-
 from app import db, login_manager
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Category
-# ─────────────────────────────────────────────────────────────────────────────
 class Category(db.Model):
     __tablename__ = "categories"
-
     id          = db.Column(db.Integer, primary_key=True)
     name        = db.Column(db.String(100), nullable=False, unique=True)
     slug        = db.Column(db.String(120), nullable=False, unique=True, index=True)
     icon        = db.Column(db.String(10), default="🛒")
     description = db.Column(db.Text, default="")
     created_at  = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-
-    products = db.relationship("Product", backref="category", lazy="dynamic")
-
-    def __repr__(self):
-        return f"<Category {self.name}>"
+    products    = db.relationship("Product", backref="category", lazy="dynamic")
 
     @property
     def product_count(self):
         return self.products.count()
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Product Image (multiple images per product)
-# ─────────────────────────────────────────────────────────────────────────────
 class ProductImage(db.Model):
     __tablename__ = "product_images"
-
     id         = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
-    image      = db.Column(db.String(300), nullable=False)
-    is_main    = db.Column(db.Boolean, default=False)  # main/cover image
+    image_url  = db.Column(db.String(500), nullable=False)
+    is_main    = db.Column(db.Boolean, default=False)
     sort_order = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
-    def __repr__(self):
-        return f"<ProductImage {self.image}>"
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Product
-# ─────────────────────────────────────────────────────────────────────────────
 class Product(db.Model):
     __tablename__ = "products"
-
     id             = db.Column(db.Integer, primary_key=True)
     name           = db.Column(db.String(200), nullable=False)
     slug           = db.Column(db.String(220), nullable=False, unique=True, index=True)
@@ -64,35 +43,18 @@ class Product(db.Model):
     specifications = db.Column(db.Text, default="")
     price          = db.Column(db.Numeric(12, 2), nullable=False, default=0.00)
     old_price      = db.Column(db.Numeric(12, 2), nullable=True)
-    image          = db.Column(db.String(300), default="default_product.jpg")  # main image (backward compat)
+    image          = db.Column(db.String(500), default="default_product.jpg")
     stock_quantity = db.Column(db.Integer, default=0)
     featured       = db.Column(db.Boolean, default=False, index=True)
     is_active      = db.Column(db.Boolean, default=True, index=True)
+    video_url      = db.Column(db.String(500), nullable=True)
+    video_platform = db.Column(db.String(20), nullable=True)
+    created_at     = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at     = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
-    # ── Video support (any platform) ─────────────────────────────────────────
-    video_url      = db.Column(db.String(500), nullable=True)   # raw URL from any platform
-    video_platform = db.Column(db.String(20), nullable=True)    # youtube, tiktok, facebook, instagram, other
+    images = db.relationship("ProductImage", backref="product", lazy="dynamic",
+                             cascade="all, delete-orphan", order_by="ProductImage.sort_order")
 
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = db.Column(
-        db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
-    )
-
-    # relationship to multiple images
-    images = db.relationship(
-        "ProductImage",
-        backref="product",
-        lazy="dynamic",
-        cascade="all, delete-orphan",
-        order_by="ProductImage.sort_order",
-    )
-
-    def __repr__(self):
-        return f"<Product {self.name}>"
-
-    # ── Helpers ──────────────────────────────────────────────────────────────
     @property
     def formatted_price(self):
         return f"₦{self.price:,.2f}"
@@ -108,69 +70,44 @@ class Product(db.Model):
         return self.stock_quantity > 0
 
     @property
-    def all_images(self):
-        """Return all images; fall back to main image if none uploaded."""
-        imgs = list(self.images.order_by(ProductImage.sort_order).all())
-        return imgs if imgs else []
-
-    @property
     def main_image(self):
-        """Return the main/cover image filename."""
         main = self.images.filter_by(is_main=True).first()
         if main:
-            return main.image
+            return main.image_url
         first = self.images.order_by(ProductImage.sort_order).first()
         if first:
-            return first.image
-        return self.image  # backward compat
+            return first.image_url
+        return self.image
+
+    @property
+    def all_images_list(self):
+        return list(self.images.order_by(ProductImage.sort_order).all())
 
     @property
     def embed_video_url(self):
-        """Convert any video URL to embeddable format."""
         if not self.video_url:
             return None
         url = self.video_url.strip()
-
-        # YouTube
         if "youtube.com/watch" in url:
             vid_id = url.split("v=")[-1].split("&")[0]
             return f"https://www.youtube.com/embed/{vid_id}"
         if "youtu.be/" in url:
             vid_id = url.split("youtu.be/")[-1].split("?")[0]
             return f"https://www.youtube.com/embed/{vid_id}"
-
-        # TikTok — use their embed
-        if "tiktok.com" in url:
-            return url  # TikTok uses oEmbed, handled in template
-
-        # Facebook
         if "facebook.com" in url or "fb.watch" in url:
             import urllib.parse
-            encoded = urllib.parse.quote(url)
-            return f"https://www.facebook.com/plugins/video.php?href={encoded}&show_text=false"
-
-        # Instagram
+            return f"https://www.facebook.com/plugins/video.php?href={urllib.parse.quote(url)}&show_text=false"
         if "instagram.com" in url:
-            base = url.split("?")[0].rstrip("/")
-            return f"{base}/embed"
-
-        return url  # return as-is for direct video files
+            return f"{url.split('?')[0].rstrip('/')}/embed"
+        return url
 
     @property
     def whatsapp_message(self):
-        return (
-            f"Hello! I'm interested in ordering *{self.name}* "
-            f"priced at {self.formatted_price}. "
-            f"Is it available? Please let me know."
-        )
+        return f"Hello! I'm interested in ordering *{self.name}* priced at {self.formatted_price}. Is it available?"
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# AdminUser
-# ─────────────────────────────────────────────────────────────────────────────
 class AdminUser(UserMixin, db.Model):
     __tablename__ = "admin_users"
-
     id            = db.Column(db.Integer, primary_key=True)
     username      = db.Column(db.String(80), unique=True, nullable=False)
     email         = db.Column(db.String(120), unique=True, nullable=False)
@@ -178,10 +115,10 @@ class AdminUser(UserMixin, db.Model):
     is_active     = db.Column(db.Boolean, default=True)
     created_at    = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
-    def set_password(self, password: str):
+    def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
-    def check_password(self, password: str) -> bool:
+    def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
 
@@ -190,12 +127,8 @@ def load_user(user_id):
     return AdminUser.query.get(int(user_id))
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Inquiry
-# ─────────────────────────────────────────────────────────────────────────────
 class Inquiry(db.Model):
     __tablename__ = "inquiries"
-
     id         = db.Column(db.Integer, primary_key=True)
     name       = db.Column(db.String(120), nullable=False)
     email      = db.Column(db.String(120), nullable=False)
@@ -206,12 +139,8 @@ class Inquiry(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Testimonial
-# ─────────────────────────────────────────────────────────────────────────────
 class Testimonial(db.Model):
     __tablename__ = "testimonials"
-
     id            = db.Column(db.Integer, primary_key=True)
     customer_name = db.Column(db.String(120), nullable=False)
     location      = db.Column(db.String(120), default="Ilorin, Kwara State")

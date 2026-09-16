@@ -15,15 +15,8 @@
     <table class="table admin-table mb-0">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Image</th>
-          <th>Product</th>
-          <th>Category</th>
-          <th>Price</th>
-          <th>Stock</th>
-          <th>Featured</th>
-          <th>Active</th>
-          <th>Actions</th>
+          <th>#</th><th>Image</th><th>Product</th><th>Category</th>
+          <th>Price</th><th>Stock</th><th>Featured</th><th>Active</th><th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -31,22 +24,20 @@
         <tr>
           <td class="text-muted small">{{ p.id }}</td>
           <td>
-            {# Handle both Cloudinary URLs and local filenames #}
-            {% if p.image and p.image.startswith('http') %}
-              <img src="{{ p.image }}"
-                   alt="{{ p.name }}"
-                   class="admin-product-thumb"
-                   onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
+            {% set thumb = p.main_image %}
+            {% if thumb and thumb.startswith('http') %}
+              <img src="{{ thumb }}" alt="{{ p.name }}" class="admin-product-thumb"
+                   onerror="this.src='/static/images/default_product.jpg'" />
+            {% elif thumb and thumb != 'default_product.jpg' %}
+              <img src="{{ url_for('static', filename='images/uploads/' + thumb) }}"
+                   alt="{{ p.name }}" class="admin-product-thumb"
+                   onerror="this.src='/static/images/default_product.jpg'" />
             {% else %}
-              <img src="{{ url_for('static', filename='images/uploads/' + p.image) }}"
-                   alt="{{ p.name }}"
-                   class="admin-product-thumb"
-                   onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
+              <img src="{{ url_for('static', filename='images/default_product.jpg') }}"
+                   alt="No image" class="admin-product-thumb" />
             {% endif %}
           </td>
-          <td>
-            <span class="fw-medium">{{ p.name|truncate(35) }}</span>
-          </td>
+          <td><span class="fw-medium">{{ p.name|truncate(35) }}</span></td>
           <td><small class="text-muted">{{ p.category.name }}</small></td>
           <td class="fw-semibold">{{ p.formatted_price }}</td>
           <td>
@@ -57,43 +48,27 @@
             {% endif %}
           </td>
           <td>
-            <form method="POST"
-                  action="{{ url_for('admin.toggle_featured', pid=p.id) }}"
-                  class="d-inline">
+            <form method="POST" action="{{ url_for('admin.toggle_featured', pid=p.id) }}" class="d-inline">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-              <button type="submit"
-                      class="btn btn-xs {% if p.featured %}btn-warning{% else %}btn-outline-secondary{% endif %}">
+              <button type="submit" class="btn btn-xs {% if p.featured %}btn-warning{% else %}btn-outline-secondary{% endif %}">
                 <i class="bi bi-star{% if p.featured %}-fill{% endif %}"></i>
               </button>
             </form>
           </td>
           <td>
-            {% if p.is_active %}
-              <span class="badge bg-success">Yes</span>
-            {% else %}
-              <span class="badge bg-secondary">No</span>
-            {% endif %}
+            {% if p.is_active %}<span class="badge bg-success">Yes</span>
+            {% else %}<span class="badge bg-secondary">No</span>{% endif %}
           </td>
           <td>
             <div class="d-flex gap-1">
-              <a href="{{ url_for('products.detail', slug=p.slug) }}"
-                 target="_blank"
-                 class="btn btn-xs btn-outline-info" title="View on site">
-                <i class="bi bi-eye"></i>
-              </a>
+              <a href="{{ url_for('products.detail', slug=p.slug) }}" target="_blank"
+                 class="btn btn-xs btn-outline-info"><i class="bi bi-eye"></i></a>
               <a href="{{ url_for('admin.edit_product', pid=p.id) }}"
-                 class="btn btn-xs btn-outline-primary" title="Edit">
-                <i class="bi bi-pencil"></i>
-              </a>
-              <form method="POST"
-                    action="{{ url_for('admin.delete_product', pid=p.id) }}"
-                    class="d-inline"
-                    onsubmit="return confirm('Delete {{ p.name }}? This cannot be undone.')">
+                 class="btn btn-xs btn-outline-primary"><i class="bi bi-pencil"></i></a>
+              <form method="POST" action="{{ url_for('admin.delete_product', pid=p.id) }}"
+                    class="d-inline" onsubmit="return confirm('Delete {{ p.name }}?')">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                <button type="submit"
-                        class="btn btn-xs btn-outline-danger" title="Delete">
-                  <i class="bi bi-trash"></i>
-                </button>
+                <button type="submit" class="btn btn-xs btn-outline-danger"><i class="bi bi-trash"></i></button>
               </form>
             </div>
           </td>
@@ -101,40 +76,31 @@
         {% else %}
         <tr>
           <td colspan="9" class="text-center text-muted py-4">
-            No products yet.
-            <a href="{{ url_for('admin.add_product') }}">Add one</a>
+            No products yet. <a href="{{ url_for('admin.add_product') }}">Add one</a>
           </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-
-  <!-- Pagination -->
   {% if products.pages > 1 %}
   <div class="admin-card__footer">
     <nav>
       <ul class="pagination pagination-sm mb-0">
         <li class="page-item {% if not products.has_prev %}disabled{% endif %}">
-          <a class="page-link"
-             href="{{ url_for('admin.products', page=products.prev_num) }}">‹</a>
+          <a class="page-link" href="{{ url_for('admin.products', page=products.prev_num) }}">‹</a>
         </li>
-        {% for p in products.iter_pages(left_edge=1, right_edge=1,
-                                         left_current=2, right_current=2) %}
+        {% for p in products.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
           {% if p %}
             <li class="page-item {% if p == products.page %}active{% endif %}">
-              <a class="page-link"
-                 href="{{ url_for('admin.products', page=p) }}">{{ p }}</a>
+              <a class="page-link" href="{{ url_for('admin.products', page=p) }}">{{ p }}</a>
             </li>
           {% else %}
-            <li class="page-item disabled">
-              <span class="page-link">…</span>
-            </li>
+            <li class="page-item disabled"><span class="page-link">…</span></li>
           {% endif %}
         {% endfor %}
         <li class="page-item {% if not products.has_next %}disabled{% endif %}">
-          <a class="page-link"
-             href="{{ url_for('admin.products', page=products.next_num) }}">›</a>
+          <a class="page-link" href="{{ url_for('admin.products', page=products.next_num) }}">›</a>
         </li>
       </ul>
     </nav>

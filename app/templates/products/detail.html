@@ -1,9 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ product.name }}{% endblock %}
-{% block meta_description %}{{ product.description[:160] if product.description else product.name }}{% endblock %}
 
 {% block content %}
-
 <div class="page-header">
   <div class="container">
     <nav aria-label="breadcrumb">
@@ -11,9 +9,7 @@
         <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Home</a></li>
         <li class="breadcrumb-item"><a href="{{ url_for('products.catalogue') }}">Products</a></li>
         <li class="breadcrumb-item">
-          <a href="{{ url_for('products.catalogue', category=product.category.slug) }}">
-            {{ product.category.name }}
-          </a>
+          <a href="{{ url_for('products.catalogue', category=product.category.slug) }}">{{ product.category.name }}</a>
         </li>
         <li class="breadcrumb-item active">{{ product.name }}</li>
       </ol>
@@ -25,29 +21,119 @@
   <div class="container">
     <div class="row g-5">
 
-      <!-- Product Image -->
+      <!-- Images -->
       <div class="col-lg-5" data-aos="fade-right">
-        <div class="product-detail-img-wrap">
+
+        {% set all_imgs = product.all_images_list %}
+        {% set main_img = product.main_image %}
+
+        <!-- Main image -->
+        <div style="border-radius:var(--radius-lg);overflow:hidden;background:#f5f7fa;aspect-ratio:1/1;position:relative;">
           {% if product.discount_percent > 0 %}
-            <span class="pcard__badge pcard__badge--sale product-detail__badge">
+            <span class="pcard__badge pcard__badge--sale" style="position:absolute;top:12px;left:12px;z-index:1;">
               -{{ product.discount_percent }}%
             </span>
           {% endif %}
-          {% if product.image and product.image.startswith('http') %}
-            <img src="{{ product.image }}"
-                 alt="{{ product.name }}"
-                 class="img-fluid rounded-3 product-detail__img"
-                 onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
+          {% if main_img and main_img.startswith('http') %}
+            <img src="{{ main_img }}" id="mainImg" alt="{{ product.name }}"
+                 style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;"
+                 onerror="this.src='/static/images/default_product.jpg'" />
           {% else %}
-            <img src="{{ url_for('static', filename='images/uploads/' + product.image) }}"
-                 alt="{{ product.name }}"
-                 class="img-fluid rounded-3 product-detail__img"
-                 onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
+            <img src="{{ url_for('static', filename='images/uploads/' + main_img) if main_img else url_for('static', filename='images/default_product.jpg') }}"
+                 id="mainImg" alt="{{ product.name }}"
+                 style="width:100%;height:100%;object-fit:cover;display:block;"
+                 onerror="this.src='/static/images/default_product.jpg'" />
           {% endif %}
         </div>
+
+        <!-- Thumbnails -->
+        {% if all_imgs|length > 1 %}
+        <div class="d-flex gap-2 flex-wrap mt-3">
+          {% for img in all_imgs %}
+          <img src="{{ img.image_url }}"
+               alt="img {{ loop.index }}"
+               onclick="document.getElementById('mainImg').src='{{ img.image_url }}';
+                        document.querySelectorAll('.thumb-img').forEach(t=>t.style.border='2px solid #E8ECF2');
+                        this.style.border='3px solid #00C9A7';"
+               class="thumb-img"
+               style="width:72px;height:72px;object-fit:cover;border-radius:8px;cursor:pointer;
+                      border:{% if img.is_main %}3px solid #00C9A7{% else %}2px solid #E8ECF2{% endif %};"
+               onerror="this.src='/static/images/default_product.jpg'" />
+          {% endfor %}
+          {% if product.video_url %}
+          <div onclick="document.getElementById('videoBox').style.display='block';this.style.border='3px solid #00C9A7';"
+               style="width:72px;height:72px;border-radius:8px;cursor:pointer;
+                      background:#0B1F3A;display:flex;flex-direction:column;
+                      align-items:center;justify-content:center;border:2px solid #E8ECF2;">
+            <i class="bi bi-play-circle-fill text-accent fs-3"></i>
+            <small style="color:rgba(255,255,255,.7);font-size:.6rem;">Video</small>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Video player -->
+        {% if product.video_url %}
+        <div id="videoBox" style="display:none;margin-top:16px;border:1px solid #E8ECF2;border-radius:12px;overflow:hidden;">
+          <div style="background:#f5f7fa;padding:10px 16px;font-size:.875rem;font-weight:600;display:flex;justify-content:space-between;align-items:center;">
+            <span><i class="bi bi-play-circle-fill text-accent me-2"></i>Product Video</span>
+            <button onclick="document.getElementById('videoBox').style.display='none'"
+                    class="btn btn-xs btn-outline-secondary">✕ Close</button>
+          </div>
+
+          {% if product.video_platform == 'tiktok' %}
+            <div style="padding:16px;">
+              <a href="{{ product.video_url }}" target="_blank" class="btn btn-dark w-100">
+                <i class="bi bi-tiktok me-2"></i>Watch on TikTok
+              </a>
+            </div>
+
+          {% elif product.video_platform == 'facebook' %}
+            <iframe src="{{ product.embed_video_url }}"
+                    width="100%" height="350" style="border:none;" allowfullscreen
+                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture">
+            </iframe>
+
+          {% elif product.video_platform == 'instagram' %}
+            <iframe src="{{ product.embed_video_url }}"
+                    width="100%" height="400" frameborder="0" scrolling="no"
+                    allowtransparency="true" allow="encrypted-media">
+            </iframe>
+
+          {% elif product.embed_video_url and 'youtube' in product.embed_video_url %}
+            <iframe src="{{ product.embed_video_url }}"
+                    width="100%" height="315" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+            </iframe>
+
+          {% else %}
+            <div style="padding:16px;">
+              <a href="{{ product.video_url }}" target="_blank" class="btn btn-accent w-100">
+                <i class="bi bi-play-circle-fill me-2"></i>Watch Video
+              </a>
+            </div>
+          {% endif %}
+
+          <div style="padding:8px;text-align:center;">
+            <a href="{{ product.video_url }}" target="_blank" class="small text-primary">
+              <i class="bi bi-box-arrow-up-right me-1"></i>
+              Open on {{ product.video_platform|title if product.video_platform else 'Platform' }}
+            </a>
+          </div>
+        </div>
+
+        {% if not all_imgs|length > 1 %}
+        <button onclick="document.getElementById('videoBox').style.display='block'"
+                class="btn btn-accent w-100 mt-3">
+          <i class="bi bi-play-circle-fill me-2"></i>Watch Product Video
+        </button>
+        {% endif %}
+        {% endif %}
+
       </div>
 
-      <!-- Product Info -->
+      <!-- Product info -->
       <div class="col-lg-7" data-aos="fade-left">
         <span class="product-detail__category-badge">
           {{ product.category.icon }} {{ product.category.name }}
@@ -67,11 +153,18 @@
         <div class="mb-3">
           {% if product.in_stock %}
             <span class="badge bg-success py-2 px-3">
-              <i class="bi bi-check-circle me-1"></i> In Stock ({{ product.stock_quantity }} available)
+              <i class="bi bi-check-circle me-1"></i>In Stock ({{ product.stock_quantity }})
             </span>
           {% else %}
             <span class="badge bg-danger py-2 px-3">
-              <i class="bi bi-x-circle me-1"></i> Out of Stock
+              <i class="bi bi-x-circle me-1"></i>Out of Stock
+            </span>
+          {% endif %}
+          {% if product.video_url %}
+            <span class="badge ms-2 py-2 px-3"
+                  style="background:rgba(0,201,167,.12);color:#00A88A;cursor:pointer;"
+                  onclick="document.getElementById('videoBox').style.display='block'">
+              <i class="bi bi-play-circle-fill me-1"></i>Video Available
             </span>
           {% endif %}
         </div>
@@ -81,18 +174,17 @@
         {% endif %}
 
         <div class="d-flex flex-wrap gap-3 my-4">
-          <a href="{{ wa_link }}" target="_blank" rel="noopener"
-             class="btn btn-whatsapp btn-lg px-5">
-            <i class="bi bi-whatsapp me-2 fs-5"></i> Order on WhatsApp
+          <a href="{{ wa_link }}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-lg px-5">
+            <i class="bi bi-whatsapp me-2 fs-5"></i>Order on WhatsApp
           </a>
           <a href="{{ url_for('main.contact') }}" class="btn btn-outline-primary btn-lg px-4">
-            <i class="bi bi-envelope me-2"></i> Send Inquiry
+            <i class="bi bi-envelope me-2"></i>Send Inquiry
           </a>
         </div>
 
         <div class="product-detail__trust-row">
           <span><i class="bi bi-patch-check-fill text-accent"></i> Genuine Product</span>
-          <span><i class="bi bi-shield-fill-check text-accent"></i> Warranty Included</span>
+          <span><i class="bi bi-shield-fill-check text-accent"></i> Warranty</span>
           <span><i class="bi bi-truck text-accent"></i> Fast Delivery</span>
         </div>
 
@@ -123,13 +215,10 @@
     <div class="mt-5 pt-4 border-top">
       <h3 class="mb-4">Related Products</h3>
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-        {% for product in related %}
-          {% include "partials/product_card.html" %}
-        {% endfor %}
+        {% for product in related %} {% include "partials/product_card.html" %} {% endfor %}
       </div>
     </div>
     {% endif %}
-
   </div>
 </section>
 {% endblock %}

@@ -7,31 +7,19 @@
   <div class="col-lg-9">
     <div class="admin-card">
       <div class="admin-card__header">
-        <h6 class="mb-0">
-          <i class="bi bi-box-seam me-2"></i>{{ action }} Product
-        </h6>
+        <h6 class="mb-0"><i class="bi bi-box-seam me-2"></i>{{ action }} Product</h6>
       </div>
 
-      <form method="POST"
-            action=""
-            enctype="multipart/form-data"
-            novalidate
-            id="productForm"
-            class="p-4">
+      <form method="POST" enctype="multipart/form-data" novalidate class="p-4">
         {{ form.hidden_tag() }}
-
         <div class="row g-3">
 
-          <!-- Name -->
           <div class="col-12">
             <label class="form-label fw-semibold">Product Name *</label>
             {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
-            {% for e in form.name.errors %}
-              <div class="invalid-feedback">{{ e }}</div>
-            {% endfor %}
+            {% for e in form.name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
           </div>
 
-          <!-- Category + Stock -->
           <div class="col-md-6">
             <label class="form-label fw-semibold">Category *</label>
             {{ form.category_id(class="form-select") }}
@@ -41,126 +29,137 @@
             {{ form.stock_quantity(class="form-control") }}
           </div>
 
-          <!-- Price + Old Price -->
           <div class="col-md-6">
             <label class="form-label fw-semibold">Selling Price (₦) *</label>
             {{ form.price(class="form-control" + (" is-invalid" if form.price.errors else "")) }}
-            {% for e in form.price.errors %}
-              <div class="invalid-feedback">{{ e }}</div>
-            {% endfor %}
+            {% for e in form.price.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
           </div>
           <div class="col-md-6">
-            <label class="form-label fw-semibold">
-              Old Price (₦)
-              <small class="text-muted">for discount</small>
-            </label>
+            <label class="form-label fw-semibold">Old Price (₦) <small class="text-muted">for discount</small></label>
             {{ form.old_price(class="form-control") }}
           </div>
 
-          <!-- Checkboxes -->
           <div class="col-12 d-flex gap-4">
             <div class="form-check">
               {{ form.featured(class="form-check-input", id="featured") }}
-              <label class="form-check-label" for="featured">
-                ⭐ Featured on Homepage
-              </label>
+              <label class="form-check-label" for="featured">⭐ Featured</label>
             </div>
             <div class="form-check">
               {{ form.is_active(class="form-check-input", id="is_active") }}
-              <label class="form-check-label" for="is_active">
-                ✅ Active (visible in store)
-              </label>
+              <label class="form-check-label" for="is_active">✅ Active</label>
             </div>
           </div>
 
-          <!-- ── IMAGE UPLOAD SECTION ─────────────────────── -->
+          <!-- IMAGES -->
           <div class="col-12">
             <label class="form-label fw-semibold">
-              Product Image
+              Product Images <small class="text-muted">(select up to 5)</small>
             </label>
 
-            <!-- Current image (edit mode only) -->
-            {% if product and product.image and product.image != 'default_product.jpg' %}
-            <div class="current-img-box mb-3">
-              <p class="small fw-semibold text-muted mb-2">
-                <i class="bi bi-image me-1"></i> Current Image:
-              </p>
-              {% if product.image.startswith('http') %}
-                <img src="{{ product.image }}"
-                     id="currentImg"
-                     alt="Current product image"
-                     onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
-              {% else %}
-                <img src="{{ url_for('static', filename='images/uploads/' + product.image) }}"
-                     id="currentImg"
-                     alt="Current product image"
-                     onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
-              {% endif %}
-              <p class="small text-muted mt-2 mb-0">
-                Select a new image below to replace this one
-              </p>
+            {% if existing_images %}
+            <div class="mb-3">
+              <p class="small text-muted mb-2">Current images — click ⭐ to set as main, 🗑 to delete:</p>
+              <div class="d-flex flex-wrap gap-2">
+                {% for img in existing_images %}
+                <div class="position-relative" style="width:80px;">
+                  <img src="{{ img.image_url }}"
+                       alt="img"
+                       style="width:80px;height:80px;object-fit:cover;border-radius:8px;
+                              border:{% if img.is_main %}3px solid #00C9A7{% else %}2px solid #E8ECF2{% endif %};"
+                       onerror="this.src='/static/images/default_product.jpg'" />
+                  {% if img.is_main %}
+                  <span style="position:absolute;top:2px;left:2px;background:#00C9A7;color:#fff;
+                               font-size:.55rem;font-weight:700;padding:2px 5px;border-radius:4px;">
+                    MAIN
+                  </span>
+                  {% endif %}
+                  <div class="d-flex gap-1 mt-1">
+                    {% if not img.is_main %}
+                    <form method="POST"
+                          action="{{ url_for('admin.set_main_image', pid=product.id, iid=img.id) }}"
+                          class="d-inline">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                      <button type="submit" class="btn btn-xs btn-warning" title="Set main">⭐</button>
+                    </form>
+                    {% endif %}
+                    <form method="POST"
+                          action="{{ url_for('admin.delete_image', pid=product.id, iid=img.id) }}"
+                          class="d-inline"
+                          onsubmit="return confirm('Delete this image?')">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                      <button type="submit" class="btn btn-xs btn-danger">🗑</button>
+                    </form>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% elif product and product.image and product.image != 'default_product.jpg' %}
+            <div class="mb-3">
+              <p class="small text-muted mb-1">Current image:</p>
+              <img src="{{ product.image if product.image.startswith('http') else '/static/images/uploads/' + product.image }}"
+                   alt="Current"
+                   style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid #00C9A7;"
+                   onerror="this.src='/static/images/default_product.jpg'" />
             </div>
             {% endif %}
 
-            <!-- File input — visible button -->
-            <div class="mb-2">
-              <input type="file"
-                     name="image"
-                     id="imageFileInput"
-                     accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
-                     class="form-control"
-                     style="cursor:pointer;" />
-            </div>
-            <small class="text-muted">
-              Accepted: JPG, PNG, WebP, GIF — Max 5MB
-            </small>
+            <!-- File input -->
+            <input type="file"
+                   name="images"
+                   id="imageFiles"
+                   multiple
+                   accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                   class="form-control" />
+            <small class="text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple images</small>
 
-            <!-- Preview box -->
-            <div id="previewBox"
-                 class="mt-3 p-3 border rounded"
-                 style="display:none; background:#f8f9fa;">
-              <p class="small fw-semibold text-success mb-2">
-                <i class="bi bi-check-circle-fill me-1"></i>
-                New image selected — preview:
-              </p>
-              <img id="previewImg"
-                   src=""
-                   alt="Preview"
-                   style="max-width:200px;
-                          max-height:200px;
-                          object-fit:cover;
-                          border-radius:10px;
-                          border:3px solid #00C9A7;" />
-              <p class="small text-muted mt-2 mb-0" id="fileName"></p>
-            </div>
-
+            <!-- Preview -->
+            <div id="imgPreviewWrap" class="d-flex flex-wrap gap-2 mt-3"></div>
           </div>
-          <!-- ── END IMAGE SECTION ────────────────────────── -->
 
-          <!-- Description -->
+          <!-- VIDEO -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">
+              Video Link
+              <small class="text-muted">— YouTube, TikTok, Facebook, Instagram</small>
+            </label>
+            <div class="row g-2">
+              <div class="col-md-4">
+                {{ form.video_platform(class="form-select") }}
+              </div>
+              <div class="col-md-8">
+                {{ form.video_url(class="form-control",
+                   placeholder="https://www.youtube.com/watch?v=... or TikTok/Facebook/Instagram link") }}
+              </div>
+            </div>
+            {% if product and product.video_url %}
+            <div class="mt-2">
+              <small class="text-muted">Current video: </small>
+              <a href="{{ product.video_url }}" target="_blank" class="small text-primary">
+                {{ product.video_url|truncate(60) }}
+              </a>
+            </div>
+            {% endif %}
+          </div>
+
           <div class="col-12">
             <label class="form-label fw-semibold">Description</label>
             {{ form.description(class="form-control", rows="4",
                placeholder="Describe the product...") }}
           </div>
 
-          <!-- Specifications -->
           <div class="col-12">
             <label class="form-label fw-semibold">Specifications</label>
-            {{ form.specifications(class="form-control font-monospace", rows="6",
+            {{ form.specifications(class="form-control font-monospace", rows="5",
                placeholder="Brand: Samsung&#10;Screen Size: 55 inches&#10;Warranty: 1 Year") }}
-            <small class="text-muted">
-              One spec per line in "Key: Value" format
-            </small>
+            <small class="text-muted">One per line: Key: Value</small>
           </div>
 
-          <!-- Submit -->
           <div class="col-12 d-flex gap-2 mt-2">
             <button type="submit" class="btn btn-accent px-5">
               <i class="bi bi-check2 me-2"></i>{{ action }} Product
             </button>
-            <a href="{{ url_for('admin.products') }}"
-               class="btn btn-outline-secondary px-4">
+            <a href="{{ url_for('admin.products') }}" class="btn btn-outline-secondary px-4">
               Cancel
             </a>
           </div>
@@ -174,43 +173,21 @@
 
 {% block extra_js %}
 <script>
-  // Image preview — fires when user picks a file
-  document.getElementById('imageFileInput').addEventListener('change', function () {
-    var file = this.files[0];
-
-    if (!file) {
-      document.getElementById('previewBox').style.display = 'none';
-      return;
-    }
-
-    // Show file name
-    document.getElementById('fileName').textContent = 'File: ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
-
-    // Read and show preview
+document.getElementById('imageFiles').addEventListener('change', function() {
+  var wrap = document.getElementById('imgPreviewWrap');
+  wrap.innerHTML = '';
+  var files = Array.from(this.files).slice(0, 5);
+  files.forEach(function(file, i) {
     var reader = new FileReader();
-    reader.onload = function (e) {
-      document.getElementById('previewImg').src = e.target.result;
-      document.getElementById('previewBox').style.display = 'block';
+    reader.onload = function(e) {
+      var div = document.createElement('div');
+      div.style.cssText = 'position:relative;width:80px;';
+      div.innerHTML = '<img src="' + e.target.result + '" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:3px solid #00C9A7;" />'
+        + (i === 0 ? '<span style="position:absolute;top:2px;left:2px;background:#00C9A7;color:#fff;font-size:.55rem;font-weight:700;padding:2px 5px;border-radius:4px;">MAIN</span>' : '');
+      wrap.appendChild(div);
     };
     reader.readAsDataURL(file);
   });
+});
 </script>
-
-<style>
-  .current-img-box {
-    background: #f8f9fa;
-    border: 1px solid #e8ecf2;
-    border-radius: 10px;
-    padding: 16px;
-    display: inline-block;
-  }
-  .current-img-box img {
-    width: 150px;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 2px solid #e8ecf2;
-    display: block;
-  }
-</style>
 {% endblock %}

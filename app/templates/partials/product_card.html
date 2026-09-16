@@ -1,20 +1,4 @@
-{# partials/product_card.html – reusable product card #}
-{# Handles both Cloudinary URLs (http) and local filenames #}
-
-{% macro product_img(product) %}
-  {% if product.image and product.image.startswith('http') %}
-    <img src="{{ product.image }}"
-         alt="{{ product.name }}"
-         class="pcard__img"
-         onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
-  {% else %}
-    <img src="{{ url_for('static', filename='images/uploads/' + product.image) }}"
-         alt="{{ product.name }}"
-         class="pcard__img"
-         onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
-  {% endif %}
-{% endmacro %}
-
+{% set img_url = product.main_image if product.main_image else product.image %}
 <div class="col">
   <div class="pcard h-100">
     <a href="{{ url_for('products.detail', slug=product.slug) }}" class="pcard__img-link">
@@ -28,7 +12,22 @@
         <span class="pcard__badge pcard__badge--oos">Out of Stock</span>
       {% endif %}
 
-      {{ product_img(product) }}
+      {# Handle Cloudinary URL, local upload, or default image #}
+      {% if img_url and img_url.startswith('http') %}
+        <img src="{{ img_url }}"
+             alt="{{ product.name }}"
+             class="pcard__img"
+             onerror="this.src='/static/images/default_product.jpg'" />
+      {% elif img_url and img_url != 'default_product.jpg' %}
+        <img src="{{ url_for('static', filename='images/uploads/' + img_url) }}"
+             alt="{{ product.name }}"
+             class="pcard__img"
+             onerror="this.src='/static/images/default_product.jpg'" />
+      {% else %}
+        <img src="{{ url_for('static', filename='images/default_product.jpg') }}"
+             alt="{{ product.name }}"
+             class="pcard__img" />
+      {% endif %}
 
       <div class="pcard__overlay">
         <span class="pcard__overlay-btn">Quick View</span>

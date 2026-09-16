@@ -1,12 +1,7 @@
-"""
-app/forms.py - WTForms form definitions.
-"""
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import (
-    StringField, TextAreaField, DecimalField, IntegerField,
-    BooleanField, SelectField, PasswordField, EmailField,
-)
+from wtforms import (StringField, TextAreaField, DecimalField, IntegerField,
+                     BooleanField, SelectField, PasswordField, EmailField, MultipleFileField)
 from wtforms.validators import DataRequired, Email, Length, NumberRange, Optional
 
 
@@ -24,15 +19,18 @@ class ProductForm(FlaskForm):
     old_price      = DecimalField("Old Price (₦)", validators=[Optional(), NumberRange(min=0)])
     stock_quantity = IntegerField("Stock Quantity", validators=[DataRequired(), NumberRange(min=0)], default=0)
     featured       = BooleanField("Featured Product")
-    is_active      = BooleanField("Active (visible in store)", default=True)
+    is_active      = BooleanField("Active", default=True)
+
+    # Multiple images — up to 5
+    images = MultipleFileField("Product Images (up to 5)",
+        validators=[Optional(), FileAllowed(["jpg","jpeg","png","gif","webp"], "Images only!")])
+
+    # Video
     video_url      = StringField("Video URL", validators=[Optional(), Length(max=500)])
-    image          = FileField(
-        "Product Image",
-        validators=[
-            Optional(),
-            FileAllowed(["jpg", "jpeg", "png", "gif", "webp"], "Images only!"),
-        ],
-    )
+    video_platform = SelectField("Platform",
+        choices=[("","— Select —"),("youtube","YouTube"),("tiktok","TikTok"),
+                 ("facebook","Facebook"),("instagram","Instagram"),("other","Other")],
+        validators=[Optional()])
 
 
 class CategoryForm(FlaskForm):
@@ -53,16 +51,14 @@ class TestimonialForm(FlaskForm):
     customer_name = StringField("Customer Name", validators=[DataRequired(), Length(2, 120)])
     location      = StringField("Location", validators=[Optional(), Length(max=120)])
     message       = TextAreaField("Testimonial", validators=[DataRequired(), Length(10, 1000)])
-    rating        = SelectField(
-        "Rating",
+    rating        = SelectField("Rating",
         choices=[(1,"1 ★"),(2,"2 ★★"),(3,"3 ★★★"),(4,"4 ★★★★"),(5,"5 ★★★★★")],
-        coerce=int, default=5,
-    )
-    is_approved = BooleanField("Approved (visible on site)")
+        coerce=int, default=5)
+    is_approved = BooleanField("Approved")
 
 
 class SearchForm(FlaskForm):
     class Meta:
         csrf = False
-    q        = StringField("Search", validators=[Optional()])
-    category = StringField("Category", validators=[Optional()])
+    q        = StringField(validators=[Optional()])
+    category = StringField(validators=[Optional()])
