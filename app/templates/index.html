@@ -242,59 +242,56 @@
       </a>
     </div>
 
-```
-<div class="row g-4">
-  {% for product in featured_products %}
-  <div class="col-6 col-md-4 col-lg-3" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 60 }}">
-    <div class="pcard">
-      <a href="{{ url_for('products.detail', slug=product.slug) }}" class="pcard__img-link">
-        {% if product.discount_percent > 0 %}
-          <span class="pcard__badge pcard__badge--sale">-{{ product.discount_percent }}%</span>
-        {% endif %}
-        {% if product.featured %}
-          <span class="pcard__badge pcard__badge--hot" style="top:10px;right:10px;left:auto;">🔥</span>
-        {% endif %}
+    <div class="row g-4">
+      {% for product in featured_products %}
+      <div class="col-6 col-md-4 col-lg-3" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 60 }}">
+        <div class="pcard">
+          <a href="{{ url_for('products.detail', slug=product.slug) }}" class="pcard__img-link">
+            {% if product.discount_percent > 0 %}
+              <span class="pcard__badge pcard__badge--sale">-{{ product.discount_percent }}%</span>
+            {% endif %}
+            {% if product.featured %}
+              <span class="pcard__badge pcard__badge--hot" style="top:10px;right:10px;left:auto;">🔥</span>
+            {% endif %}
 
-        {% if product.images and product.images|length > 0 %}
-          <img src="{{ product.images[0].image_url }}"
-               alt="{{ product.name }}" class="pcard__img"
-               onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
-        {% else %}
-          <img src="{{ url_for('static', filename='images/default_product.jpg') }}"
-               alt="{{ product.name }}" class="pcard__img" />
-        {% endif %}
+            {% set first_image = product.images.first() %}
 
-        <div class="pcard__overlay">
-          <span class="pcard__overlay-btn">Quick View</span>
+            {% if first_image and first_image.image_url %}
+              <img src="{{ first_image.image_url }}"
+                   alt="{{ product.name }}" class="pcard__img"
+                   onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
+            {% else %}
+              <img src="{{ url_for('static', filename='images/default_product.jpg') }}"
+                   alt="{{ product.name }}" class="pcard__img" />
+            {% endif %}
+
+            <div class="pcard__overlay">
+              <span class="pcard__overlay-btn">Quick View</span>
+            </div>
+          </a>
+          <div class="pcard__body">
+            <span class="pcard__cat">{{ product.category.name }}</span>
+            <h6 class="pcard__name">
+              <a href="{{ url_for('products.detail', slug=product.slug) }}">{{ product.name }}</a>
+            </h6>
+            <div class="pcard__price-row">
+              <span class="pcard__price">{{ product.formatted_price }}</span>
+              {% if product.old_price and product.old_price > product.price %}
+                <span class="pcard__old">₦{{ "{:,.0f}".format(product.old_price) }}</span>
+              {% endif %}
+            </div>
+            <a href="https://wa.me/{{ whatsapp_number }}?text=I want to order: {{ product.name }}"
+               target="_blank" class="pcard__btn">
+              <i class="bi bi-whatsapp me-1"></i> Order Now
+            </a>
+          </div>
         </div>
-      </a>
-      <div class="pcard__body">
-        <span class="pcard__cat">{{ product.category.name }}</span>
-        <h6 class="pcard__name">
-          <a href="{{ url_for('products.detail', slug=product.slug) }}">{{ product.name }}</a>
-        </h6>
-        <div class="pcard__price-row">
-          <span class="pcard__price">{{ product.formatted_price }}</span>
-          {% if product.old_price and product.old_price > product.price %}
-            <span class="pcard__old">₦{{ "{:,.0f}".format(product.old_price) }}</span>
-          {% endif %}
-        </div>
-        <a href="https://wa.me/{{ whatsapp_number }}?text=I want to order: {{ product.name }}"
-           target="_blank" class="pcard__btn">
-          <i class="bi bi-whatsapp me-1"></i> Order Now
-        </a>
       </div>
+      {% endfor %}
     </div>
-  </div>
-  {% endfor %}
-</div>
-```
-
   </div>
 </section>
 {% endif %}
-
-
 <!-- ══════════════════════════════════════════════════════════════
      PROMO SPLIT BANNER
 ════════════════════════════════════════════════════════════════ -->
@@ -340,7 +337,6 @@
     </div>
   </div>
 </section>
-
 <!-- ══════════════════════════════════════════════════════════════
      NEW ARRIVALS
 ════════════════════════════════════════════════════════════════ -->
@@ -367,45 +363,43 @@
               <span class="pcard__badge pcard__badge--oos">Out of Stock</span>
             {% endif %}
 
-```
-        {% if product.images and product.images|length > 0 %}
-          <img src="{{ product.images[0].image_url }}"
-               alt="{{ product.name }}" class="pcard__img"
-               onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
-        {% else %}
-          <img src="{{ url_for('static', filename='images/default_product.jpg') }}"
-               alt="{{ product.name }}" class="pcard__img" />
-        {% endif %}
+            {% set first_image = product.images.first() %}
 
-        <div class="pcard__overlay">
-          <span class="pcard__overlay-btn">Quick View</span>
+            {% if first_image and first_image.image_url %}
+              <img src="{{ first_image.image_url }}"
+                   alt="{{ product.name }}" class="pcard__img"
+                   onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
+            {% else %}
+              <img src="{{ url_for('static', filename='images/default_product.jpg') }}"
+                   alt="{{ product.name }}" class="pcard__img" />
+            {% endif %}
+
+            <div class="pcard__overlay">
+              <span class="pcard__overlay-btn">Quick View</span>
+            </div>
+          </a>
+          <div class="pcard__body">
+            <span class="pcard__cat">{{ product.category.name }}</span>
+            <h6 class="pcard__name">
+              <a href="{{ url_for('products.detail', slug=product.slug) }}">{{ product.name }}</a>
+            </h6>
+            <div class="pcard__price-row">
+              <span class="pcard__price">{{ product.formatted_price }}</span>
+              {% if product.old_price and product.old_price > product.price %}
+                <span class="pcard__old">₦{{ "{:,.0f}".format(product.old_price) }}</span>
+              {% endif %}
+            </div>
+            <a href="{{ url_for('products.detail', slug=product.slug) }}" class="pcard__btn pcard__btn--outline">
+              View Details <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
         </div>
-      </a>
-      <div class="pcard__body">
-        <span class="pcard__cat">{{ product.category.name }}</span>
-        <h6 class="pcard__name">
-          <a href="{{ url_for('products.detail', slug=product.slug) }}">{{ product.name }}</a>
-        </h6>
-        <div class="pcard__price-row">
-          <span class="pcard__price">{{ product.formatted_price }}</span>
-          {% if product.old_price and product.old_price > product.price %}
-            <span class="pcard__old">₦{{ "{:,.0f}".format(product.old_price) }}</span>
-          {% endif %}
-        </div>
-        <a href="{{ url_for('products.detail', slug=product.slug) }}" class="pcard__btn pcard__btn--outline">
-          View Details <i class="bi bi-arrow-right ms-1"></i>
-        </a>
       </div>
+      {% endfor %}
     </div>
-  </div>
-  {% endfor %}
-</div>
-```
-
   </div>
 </section>
 {% endif %}
-
 
 <!-- ══════════════════════════════════════════════════════════════
      WHY CHOOSE US — Icon cards
