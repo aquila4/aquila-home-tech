@@ -24,12 +24,11 @@
         <tr>
           <td class="text-muted small">{{ p.id }}</td>
           <td>
-            {% set thumb = p.main_image %}
-            {% if thumb and thumb.startswith('http') %}
-              <img src="{{ thumb }}" alt="{{ p.name }}" class="admin-product-thumb"
+            {% if p.image and p.image.startswith('http') %}
+              <img src="{{ p.image }}" alt="{{ p.name }}" class="admin-product-thumb"
                    onerror="this.src='/static/images/default_product.jpg'" />
-            {% elif thumb and thumb != 'default_product.jpg' %}
-              <img src="{{ url_for('static', filename='images/uploads/' + thumb) }}"
+            {% elif p.image and p.image != 'default_product.jpg' %}
+              <img src="{{ url_for('static', filename='images/uploads/' + p.image) }}"
                    alt="{{ p.name }}" class="admin-product-thumb"
                    onerror="this.src='/static/images/default_product.jpg'" />
             {% else %}

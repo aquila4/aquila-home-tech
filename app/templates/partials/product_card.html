@@ -1,4 +1,4 @@
-{% set img_url = product.main_image if product.main_image else product.image %}
+{% set img_url = product.image %}
 <div class="col">
   <div class="pcard h-100">
     <a href="{{ url_for('products.detail', slug=product.slug) }}" class="pcard__img-link">
@@ -12,7 +12,6 @@
         <span class="pcard__badge pcard__badge--oos">Out of Stock</span>
       {% endif %}
 
-      {# Handle Cloudinary URL, local upload, or default image #}
       {% if img_url and img_url.startswith('http') %}
         <img src="{{ img_url }}"
              alt="{{ product.name }}"

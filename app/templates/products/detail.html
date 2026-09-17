@@ -25,7 +25,6 @@
       <div class="col-lg-5" data-aos="fade-right">
 
         {% set all_imgs = product.all_images_list %}
-        {% set main_img = product.main_image %}
 
         <!-- Main image -->
         <div style="border-radius:var(--radius-lg);overflow:hidden;background:#f5f7fa;aspect-ratio:1/1;position:relative;">
@@ -34,15 +33,19 @@
               -{{ product.discount_percent }}%
             </span>
           {% endif %}
-          {% if main_img and main_img.startswith('http') %}
-            <img src="{{ main_img }}" id="mainImg" alt="{{ product.name }}"
+          {% if product.image and product.image.startswith('http') %}
+            <img src="{{ product.image }}" id="mainImg" alt="{{ product.name }}"
                  style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;"
                  onerror="this.src='/static/images/default_product.jpg'" />
-          {% else %}
-            <img src="{{ url_for('static', filename='images/uploads/' + main_img) if main_img else url_for('static', filename='images/default_product.jpg') }}"
+          {% elif product.image and product.image != 'default_product.jpg' %}
+            <img src="{{ url_for('static', filename='images/uploads/' + product.image) }}"
                  id="mainImg" alt="{{ product.name }}"
                  style="width:100%;height:100%;object-fit:cover;display:block;"
                  onerror="this.src='/static/images/default_product.jpg'" />
+          {% else %}
+            <img src="{{ url_for('static', filename='images/default_product.jpg') }}"
+                 id="mainImg" alt="{{ product.name }}"
+                 style="width:100%;height:100%;object-fit:cover;display:block;" />
           {% endif %}
         </div>
 
