@@ -60,9 +60,29 @@
             <tr>
               <td>
                 <div class="d-flex align-items-center gap-2">
-                  <img src="{{ url_for('static', filename='images/uploads/' + p.image) }}"
-                       alt="{{ p.name }}" class="admin-product-thumb"
-                       onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
+
+                  {% set first_image = p.images.first() %}
+
+                  {% if first_image and first_image.image_url %}
+                    <img src="{{ first_image.image_url }}"
+                         alt="{{ p.name }}" class="admin-product-thumb"
+                         onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
+
+                  {% elif p.image and p.image.startswith('http') %}
+                    <img src="{{ p.image }}"
+                         alt="{{ p.name }}" class="admin-product-thumb"
+                         onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
+
+                  {% elif p.image and p.image != 'default_product.jpg' %}
+                    <img src="{{ url_for('static', filename='images/uploads/' + p.image) }}"
+                         alt="{{ p.name }}" class="admin-product-thumb"
+                         onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'" />
+
+                  {% else %}
+                    <img src="{{ url_for('static', filename='images/default_product.jpg') }}"
+                         alt="{{ p.name }}" class="admin-product-thumb" />
+                  {% endif %}
+
                   <span class="fw-medium">{{ p.name|truncate(30) }}</span>
                 </div>
               </td>
