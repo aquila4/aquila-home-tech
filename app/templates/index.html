@@ -46,21 +46,45 @@
     </div>
   </section>
 
-  <section class="at-section" id="at-categories">
+  <section class="at-category-discovery" id="at-categories">
     <div class="container">
-      <div class="at-section-heading"><div><span class="at-small-label">FIND YOUR FIT</span><h2>Shop by category<span class="at-period">.</span></h2><p>Everything you need to upgrade your everyday.</p></div><a href="{{ url_for('products.catalogue') }}" class="at-text-link">View all products <i class="bi bi-arrow-up-right"></i></a></div>
-      {% if categories %}
-      <div class="at-category-grid">
-        {% for cat in categories %}
-        <a class="at-category-tile" href="{{ url_for('products.catalogue', category=cat.slug) }}">
-          <span class="at-category-emoji" aria-hidden="true">{{ cat.icon }}</span>
-          <span class="at-category-name">{{ cat.name }}</span>
-          <span class="at-category-count">{{ cat.product_count }} items</span>
-          <span class="at-category-arrow"><i class="bi bi-arrow-up-right"></i></span>
-        </a>
-        {% endfor %}
+      <div class="at-category-discovery-bar">
+        <div class="at-category-discovery-copy">
+          <span class="at-category-discovery-icon" aria-hidden="true"><i class="bi bi-grid-3x3-gap"></i></span>
+          <div>
+            <span class="at-small-label">FIND WHAT YOU NEED</span>
+            <h2>Explore product categories</h2>
+            <p>Browse TVs, audio, cooling, appliances and more whenever you're ready.</p>
+          </div>
+        </div>
+        {% if categories %}
+        <button class="at-category-toggle" type="button" data-bs-toggle="collapse"
+                data-bs-target="#atCategoryList" aria-expanded="false" aria-controls="atCategoryList">
+          <span class="at-category-show">Browse categories</span>
+          <span class="at-category-hide">Hide categories</span>
+          <i class="bi bi-chevron-down" aria-hidden="true"></i>
+        </button>
+        {% else %}
+        <a href="{{ url_for('products.catalogue') }}" class="at-category-toggle">View catalogue <i class="bi bi-arrow-up-right"></i></a>
+        {% endif %}
       </div>
-      {% else %}<div class="at-no-products">Our catalogue is being updated. <a href="https://wa.me/{{ whatsapp_number }}">Ask about current products</a>.</div>{% endif %}
+      {% if categories %}
+      <div class="collapse" id="atCategoryList">
+        <div class="at-category-discovery-expanded">
+          <div class="at-category-grid">
+            {% for cat in categories %}
+            <a class="at-category-tile" href="{{ url_for('products.catalogue', category=cat.slug) }}">
+              <span class="at-category-emoji" aria-hidden="true">{{ cat.icon }}</span>
+              <span class="at-category-name">{{ cat.name }}</span>
+              <span class="at-category-count">{{ cat.product_count }} item{% if cat.product_count != 1 %}s{% endif %}</span>
+              <span class="at-category-arrow"><i class="bi bi-arrow-up-right"></i></span>
+            </a>
+            {% endfor %}
+          </div>
+          <a href="{{ url_for('products.catalogue') }}" class="at-text-link at-category-all">View all products <i class="bi bi-arrow-up-right"></i></a>
+        </div>
+      </div>
+      {% endif %}
     </div>
   </section>
 
