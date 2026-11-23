@@ -1,8 +1,8 @@
-# 🦅 Aquila Home Tech
+# 🦅 Aquila Tech
 
 **Quality Electronics & Home Appliances You Can Trust**
 
-A production-ready Flask web application for Aquila Home Tech — an electronics and home
+A production-ready Flask web application for Aquila Tech — an electronics and home
 appliances store based in Ilorin, Kwara State, Nigeria.
 
 ---
