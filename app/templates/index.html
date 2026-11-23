@@ -1,92 +1,95 @@
 {% extends "base.html" %}
-{% block title %}Aquila Tech | Electronics, Appliances & Electricals{% endblock %}
-{% block meta_description %}Shop TVs, soundbars, fans, decorative lighting, power solutions and home appliances with Aquila Tech. Order online or enquire on WhatsApp.{% endblock %}
+{% block title %}Aquila Tech — Electronics, Appliances & More{% endblock %}
+{% block meta_description %}Shop electronics, smart TVs, soundbars, fans, lighting, power solutions and appliances with Aquila Tech. Browse products and enquire on WhatsApp.{% endblock %}
 {% block content %}
-<section class="premium-hero">
-  <div class="container">
-    <div class="row align-items-center g-5">
-      <div class="col-lg-7">
-        <span class="premium-kicker"><i class="bi bi-stars"></i> AQUILA TECH · ELECTRONICS & HOME LIVING</span>
-        <h1>Better technology.<br><em>Better everyday living.</em></h1>
-        <p>Explore carefully selected TVs, soundbars, cooling solutions, decorative lighting, appliances and dependable power products — all in one place.</p>
-        <div class="premium-actions">
-          <a href="{{ url_for('products.catalogue') }}" class="premium-btn premium-btn--gold">Explore products <i class="bi bi-arrow-up-right"></i></a>
-          <a href="https://wa.me/{{ whatsapp_number }}?text=Hello%20Aquila%20Tech%2C%20I%27d%20like%20to%20enquire%20about%20your%20products." target="_blank" rel="noopener noreferrer" class="premium-btn premium-btn--outline"><i class="bi bi-whatsapp"></i> Chat with us</a>
+<div class="at-home">
+  <div class="at-announcement"><div class="container"><span><i class="bi bi-lightning-charge-fill"></i> TECH FOR REAL LIFE</span><span>Electronics · Home appliances · Lighting · Power</span><a href="{{ url_for('products.catalogue') }}">Shop the collection <i class="bi bi-arrow-up-right"></i></a></div></div>
+  {% set lead = (featured_products|first) or (latest_products|first) %}
+  <section class="at-hero">
+    <div class="container">
+      <div class="at-hero-layout">
+        <div class="at-hero-copy">
+          <div class="at-eyebrow"><span class="at-online-dot"></span> YOUR EVERYDAY TECH DESTINATION</div>
+          <h1>Make room for <span>better living.</span></h1>
+          <p>Discover electronics, appliances and power solutions that fit your space, your lifestyle and your budget.</p>
+          <div class="at-hero-actions">
+            <a class="at-primary" href="{{ url_for('products.catalogue') }}">Shop all products <i class="bi bi-arrow-up-right"></i></a>
+            <a class="at-secondary" href="#at-categories">Explore categories <i class="bi bi-arrow-down"></i></a>
+          </div>
+          <div class="at-hero-foot"><span><i class="bi bi-patch-check"></i> Product details before you buy</span><span><i class="bi bi-chat-dots"></i> Helpful WhatsApp support</span></div>
+        </div>
+        <div class="at-hero-display">
+          <div class="at-display-top"><span class="at-display-overline">THE AQUILA EDIT</span><span class="at-display-spark"><i class="bi bi-stars"></i></span></div>
+          {% if lead %}
+            <a class="at-lead-product" href="{{ url_for('products.detail', slug=lead.slug) }}">
+              {% set hero_img = lead.main_image %}
+              {% if hero_img and hero_img.startswith('http') %}
+                <img src="{{ hero_img }}" alt="{{ lead.name }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/default_product.jpg') }}'">
+              {% elif hero_img and hero_img != 'default_product.jpg' %}
+                <img src="{{ url_for('static', filename='images/uploads/' + hero_img) }}" alt="{{ lead.name }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/default_product.jpg') }}'">
+              {% else %}
+                <div class="at-display-symbol" aria-hidden="true"><i class="bi bi-speaker"></i></div>
+              {% endif %}
+            </a>
+            <div class="at-display-bottom"><div><small>FEATURED PRODUCT</small><strong>{{ lead.name }}</strong><span>{{ lead.formatted_price }}</span></div><a href="{{ url_for('products.detail', slug=lead.slug) }}" aria-label="View {{ lead.name }}"><i class="bi bi-arrow-up-right"></i></a></div>
+          {% else %}
+            <div class="at-lead-empty"><i class="bi bi-grid-1x2"></i><strong>Explore something new.</strong><span>Browse our collection of electronics and essentials.</span></div>
+            <div class="at-display-bottom"><div><small>DISCOVER</small><strong>Aquila Tech Collection</strong><span>Find your next upgrade.</span></div><a href="{{ url_for('products.catalogue') }}" aria-label="Browse catalogue"><i class="bi bi-arrow-up-right"></i></a></div>
+          {% endif %}
         </div>
       </div>
-      <div class="col-lg-5">
-        {% set hero_product = (featured_products|first) or (latest_products|first) %}
-        {% if hero_product %}
-          <a href="{{ url_for('products.detail', slug=hero_product.slug) }}" class="premium-visual text-decoration-none" aria-label="View {{ hero_product.name }}">
-            {% set hero_image = hero_product.main_image %}
-            {% if hero_image and hero_image.startswith('http') %}
-              <img src="{{ hero_image }}" alt="{{ hero_product.name }}" onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'">
-            {% elif hero_image and hero_image != 'default_product.jpg' %}
-              <img src="{{ url_for('static', filename='images/uploads/' + hero_image) }}" alt="{{ hero_product.name }}" onerror="this.src='{{ url_for('static', filename='images/default_product.jpg') }}'">
-            {% else %}
-              <img src="{{ url_for('static', filename='images/default_product.jpg') }}" alt="{{ hero_product.name }}">
-            {% endif %}
-            <span class="premium-visual__label"><strong>{{ hero_product.name }}</strong><small>{{ hero_product.formatted_price }} · View product <i class="bi bi-arrow-up-right"></i></small></span>
-          </a>
-        {% else %}
-          <div class="premium-visual"><div class="premium-visual__empty"><i class="bi bi-house-heart"></i><h3 class="mt-3">A smarter home starts here.</h3><p class="mb-0">Discover our growing selection.</p></div></div>
-        {% endif %}
+      <div class="at-benefits">
+        <div><i class="bi bi-truck"></i><span><strong>Flexible delivery</strong><small>Delivery details confirmed per order</small></span></div>
+        <div><i class="bi bi-headset"></i><span><strong>Personal assistance</strong><small>Questions? Talk to us directly</small></span></div>
+        <div><i class="bi bi-shield-check"></i><span><strong>Buy with clarity</strong><small>Confirm specs and availability first</small></span></div>
       </div>
     </div>
-  </div>
-</section>
-<div class="premium-promises">
-  <div class="container"><div class="premium-promises__grid">
-    <div class="premium-promise"><i class="bi bi-chat-square-heart"></i><span>Personal help choosing the right product</span></div>
-    <div class="premium-promise"><i class="bi bi-truck"></i><span>Delivery options confirmed before purchase</span></div>
-    <div class="premium-promise"><i class="bi bi-shield-check"></i><span>Product details and availability on enquiry</span></div>
-  </div></div>
+  </section>
+
+  <section class="at-section" id="at-categories">
+    <div class="container">
+      <div class="at-section-heading"><div><span class="at-small-label">FIND YOUR FIT</span><h2>Shop by category<span class="at-period">.</span></h2><p>Everything you need to upgrade your everyday.</p></div><a href="{{ url_for('products.catalogue') }}" class="at-text-link">View all products <i class="bi bi-arrow-up-right"></i></a></div>
+      {% if categories %}
+      <div class="at-category-grid">
+        {% for cat in categories %}
+        <a class="at-category-tile" href="{{ url_for('products.catalogue', category=cat.slug) }}">
+          <span class="at-category-emoji" aria-hidden="true">{{ cat.icon }}</span>
+          <span class="at-category-name">{{ cat.name }}</span>
+          <span class="at-category-count">{{ cat.product_count }} items</span>
+          <span class="at-category-arrow"><i class="bi bi-arrow-up-right"></i></span>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}<div class="at-no-products">Our catalogue is being updated. <a href="https://wa.me/{{ whatsapp_number }}">Ask about current products</a>.</div>{% endif %}
+    </div>
+  </section>
+
+  {% if featured_products %}
+  <section class="at-section at-products-section">
+    <div class="container">
+      <div class="at-section-heading"><div><span class="at-small-label">SPOTLIGHT</span><h2>Worth a closer look<span class="at-period">.</span></h2><p>Discover featured picks from Aquila Tech.</p></div><a href="{{ url_for('products.catalogue') }}" class="at-text-link">See everything <i class="bi bi-arrow-up-right"></i></a></div>
+      <div class="row row-cols-2 row-cols-lg-4 g-3 g-lg-4">{% for product in featured_products %}{% include "partials/product_card.html" %}{% endfor %}</div>
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="at-promo-section">
+    <div class="container">
+      <div class="at-promo">
+        <div class="at-promo-graphic"><span class="at-promo-orbit at-promo-orbit-1"></span><span class="at-promo-orbit at-promo-orbit-2"></span><i class="bi bi-lightbulb"></i><i class="bi bi-lightning-charge at-promo-bolt"></i></div>
+        <div class="at-promo-content"><span class="at-small-label">POWER UP YOUR SPACE</span><h2>From bright ideas<br>to better living.</h2><p>Find decorative lighting, cooling solutions, backup power, TVs and more. Ask us about the best fit for your space.</p><a href="{{ url_for('products.catalogue') }}" class="at-primary at-primary-light">Browse the collection <i class="bi bi-arrow-up-right"></i></a></div>
+      </div>
+    </div>
+  </section>
+
+  {% if latest_products %}
+  <section class="at-section at-products-section">
+    <div class="container">
+      <div class="at-section-heading"><div><span class="at-small-label">FRESH ON THE SHELF</span><h2>Just added<span class="at-period">.</span></h2><p>Explore the newest listings in our catalogue.</p></div><a href="{{ url_for('products.catalogue') }}" class="at-text-link">Browse all <i class="bi bi-arrow-up-right"></i></a></div>
+      <div class="row row-cols-2 row-cols-lg-4 g-3 g-lg-4">{% for product in latest_products %}{% include "partials/product_card.html" %}{% endfor %}</div>
+    </div>
+  </section>
+  {% endif %}
+  <section class="at-help-section"><div class="container"><div class="at-help"><div class="at-help-icon"><i class="bi bi-chat-square-dots"></i></div><div><span class="at-small-label">WE'RE HERE TO HELP</span><h2>Need a recommendation?</h2><p>Tell us what you're looking for. We'll help you explore available options.</p></div><a class="at-primary" target="_blank" rel="noopener noreferrer" href="https://wa.me/{{ whatsapp_number }}?text=Hello%20Aquila%20Tech%2C%20I%20need%20help%20choosing%20a%20product."><i class="bi bi-whatsapp"></i> Chat on WhatsApp</a></div></div></section>
 </div>
-<section class="premium-section premium-section--tint" id="categories">
-  <div class="container">
-    <div class="premium-section-head">
-      <div><span class="premium-kicker">SHOP YOUR WAY</span><h2>Discover our categories</h2><p>Find what suits your home, workspace or next upgrade.</p></div>
-      <a href="{{ url_for('products.catalogue') }}" class="premium-link">All products <i class="bi bi-arrow-right"></i></a>
-    </div>
-    {% if categories %}
-    <div class="row g-3 row-cols-2 row-cols-lg-3">
-      {% for cat in categories %}
-      <div class="col"><a class="premium-category" href="{{ url_for('products.catalogue', category=cat.slug) }}">
-        <span class="premium-category__icon" aria-hidden="true">{{ cat.icon }}</span>
-        <span><strong>{{ cat.name }}</strong><small>{{ cat.product_count }} product{% if cat.product_count != 1 %}s{% endif %}</small></span>
-        <i class="bi bi-arrow-up-right ms-auto" aria-hidden="true"></i>
-      </a></div>
-      {% endfor %}
-    </div>
-    {% else %}<div class="premium-empty">Our catalogue is being prepared. Enquire on WhatsApp for current availability.</div>{% endif %}
-  </div>
-</section>
-{% if featured_products %}
-<section class="premium-section">
-  <div class="container">
-    <div class="premium-section-head"><div><span class="premium-kicker">CURATED SELECTION</span><h2>Featured products</h2><p>Explore highlights from our catalogue.</p></div><a href="{{ url_for('products.catalogue') }}" class="premium-link">Browse all <i class="bi bi-arrow-right"></i></a></div>
-    <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3 g-md-4">
-      {% for product in featured_products %}{% include "partials/product_card.html" %}{% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
-{% if latest_products %}
-<section class="premium-section premium-section--tint">
-  <div class="container">
-    <div class="premium-section-head"><div><span class="premium-kicker">FRESH FINDS</span><h2>Latest additions</h2><p>See what's new in the store.</p></div><a href="{{ url_for('products.catalogue') }}" class="premium-link">View catalogue <i class="bi bi-arrow-right"></i></a></div>
-    <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3 g-md-4">
-      {% for product in latest_products %}{% include "partials/product_card.html" %}{% endfor %}
-    </div>
-  </div>
-</section>
-{% endif %}
-<section class="premium-section">
-  <div class="container">
-    <div class="premium-feature">
-      <div><span class="premium-kicker">NEED ADVICE?</span><h2>Not sure which product is right for you?</h2><p>Tell us what you're looking for and your budget. We'll help you compare available options. Online enquiries and visits by appointment.</p></div>
-      <a href="https://wa.me/{{ whatsapp_number }}?text=Hello%20Aquila%20Tech%2C%20I%20need%20help%20choosing%20a%20product." target="_blank" rel="noopener noreferrer" class="premium-btn premium-btn--gold"><i class="bi bi-whatsapp"></i> Get product advice</a>
-    </div>
-  </div>
-</section>
 {% endblock %}
